@@ -91,6 +91,13 @@ def cmd_scan(args) -> int:
         if not args.json:
             print(_color(f"  overlay written to {out}", "dim"))
 
+    if args.annotate:
+        from .annotate import annotate_pdf
+        out = annotate_pdf(result, args.annotate)
+        if not args.json:
+            print(_color(f"  annotated PDF written to {out} "
+                         f"(original untouched)", "dim"))
+
     if (args.receipt or args.ledger) and result.decision == "quarantined":
         from .receipt import (append, build_r3_receipt, latest,
                               load_or_create_keypair)
@@ -168,6 +175,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--json", action="store_true", help="emit findings as JSON")
     s.add_argument("--receipt", metavar="FILE", help="write a signed refusal receipt")
     s.add_argument("--overlay", metavar="PNG", help="write the findings overlay image")
+    s.add_argument("--annotate", metavar="PDF",
+                   help="write a new PDF copy with findings marked in place")
     s.add_argument("--ledger", metavar="DIR", help="append the receipt to a ledger")
     s.add_argument("--advisory", action="store_true",
                    help="run the optional semantic advisory pass")
