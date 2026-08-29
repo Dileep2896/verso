@@ -14,11 +14,20 @@ from __future__ import annotations
 
 import json
 import os
+import ssl
 import urllib.request
 from dataclasses import dataclass
 from typing import Optional
 
 from .classifier import AdvisoryHit
+
+
+def _ssl_ctx() -> ssl.SSLContext:
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl.create_default_context()
 
 SYSTEM = (
     "You are a document-safety reviewer. You are given numbered sentences that are "
@@ -82,7 +91,7 @@ def _post(url: str, headers: dict, payload: dict, timeout: int = 30) -> dict:
         url, data=data, method="POST",
         headers={"Content-Type": "application/json", **headers},
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    with urllib.request.urlopen(req, timeout=timeout, context=_ssl_ctx()) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 

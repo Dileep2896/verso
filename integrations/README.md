@@ -64,11 +64,23 @@ rather than through MCP.
 
 ## Nutrient DWS — extraction on the far side of the firewall
 
-`nutrient_dws.py` runs DWS Data Extraction only on documents Verso releases;
-quarantined documents are handed to the DWS Viewer for human review instead. Set
-`VERSO_DWS_API_KEY` to use the real service; otherwise a local fake returns
-deterministic fields. (Interface ready; wire the real DWS endpoint when you have
-the campaign credentials.)
+`nutrient_dws.py` runs DWS Data Extraction only on documents Verso *releases*
+(exit 0); a quarantined document is handed to the DWS Viewer for human review
+instead. This calls the **real DWS Processor API** (`POST
+https://api.nutrient.io/build` with a `json-content` output that returns
+extracted text, tables, and key-value pairs):
+
+```bash
+export NUTRIENT_DWS_API_KEY=...      # DWS Processor API key from the dashboard
+# export DWS_API_BASE_URL=...        # optional, defaults to https://api.nutrient.io
+python -c "from integrations.nutrient_dws import extract_released; \
+           print(extract_released('yourfile.pdf'))"
+```
+
+With no key set it falls back to a local fake that returns deterministic fields,
+so the flow is demonstrable offline. The wiring is verified end-to-end: a request
+with a placeholder key reaches the API and returns a proper `401 Unauthorized`,
+so a valid key is the only missing piece.
 
 ## Run the offline story
 

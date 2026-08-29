@@ -9,6 +9,7 @@ reportlab>=4
 pyyaml>=6
 cryptography>=42
 pillow>=10
+certifi>=2024
 
 # web app (make web)
 flask>=3
