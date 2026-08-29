@@ -187,7 +187,11 @@ honest than pretending the taxonomy is complete.
   before any of them runs — a quarantined file (exit 2) is refused with a signed
   receipt and the Foxit tool never executes. See
   [`integrations/foxit_mcp_gateway.py`](integrations/foxit_mcp_gateway.py) and
-  [`integrations/README.md`](integrations/README.md).
+  [`integrations/README.md`](integrations/README.md). Wiring this up surfaced two
+  bugs that kept Foxit's Python MCP server from starting (an entry-point typo and
+  an `asyncio.run(mcp.run())` crash on `fastmcp>=3`); we fixed both and sent them
+  upstream —
+  [foxit-pdf-api-mcp-server#6](https://github.com/foxitsoftware/foxit-pdf-api-mcp-server/pull/6).
 - **Nutrient DWS** is the extraction and human-review layer on the far side of
   the firewall: extraction runs on documents Verso releases, and flagged findings
   are handed to a reviewer with their coordinates overlaid. See
