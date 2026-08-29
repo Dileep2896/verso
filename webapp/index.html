@@ -253,6 +253,18 @@ select:focus-visible{border-color:var(--accent)}
 .saved.show{opacity:1}
 .btn.ghost{background:transparent;border-color:var(--line-2);color:var(--ink)}
 .btn.ghost:hover{border-color:var(--danger);color:var(--danger)}
+
+/* ---- overlay lightbox (click the annotated image to read it full size) ---- */
+figure.shot img{cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:80;background:rgba(6,9,14,.94);overflow:auto;padding:clamp(12px,3vw,40px);display:grid;place-items:start center}
+.lightbox[hidden]{display:none}
+.lightbox img{display:block;width:min(1500px,96vw);max-width:none;height:auto;border-radius:8px;box-shadow:0 24px 60px -20px rgba(0,0,0,.8)}
+.lightbox img.natural{width:auto;cursor:zoom-out}
+.lb-close{position:fixed;top:16px;right:20px;z-index:81;width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(20,26,36,.85);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
+.lb-close:hover{border-color:#fff}
+.lb-hint{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:81;font-family:var(--font-mono);font-size:12px;
+  color:rgba(255,255,255,.75);background:rgba(20,26,36,.7);padding:7px 14px;border-radius:20px;backdrop-filter:blur(6px)}
 </style>
 </head>
 <body>
@@ -370,9 +382,29 @@ select:focus-visible{border-color:var(--accent)}
   </div>
 </div>
 
+<!-- OVERLAY LIGHTBOX -->
+<div class="lightbox" id="lightbox" hidden>
+  <div class="lb-hint">annotated render · click image to toggle 100% · Esc to close</div>
+  <button class="lb-close" id="lbClose" type="button" aria-label="Close">✕</button>
+  <img id="lightboxImg" alt="Findings overlay, full size">
+</div>
+
 <script>
 const $ = s => document.querySelector(s);
 const results = $('#results'), statusPill = $('#statusPill');
+
+// lightbox: click the annotated overlay image to read it full size
+const lightbox = $('#lightbox'), lightboxImg = $('#lightboxImg');
+function openLightbox(src){ lightboxImg.src = src; lightboxImg.classList.remove('natural'); lightbox.hidden = false; }
+function closeLightbox(){ lightbox.hidden = true; lightboxImg.src = ''; }
+results.addEventListener('click', e => {
+  const img = e.target.closest && e.target.closest('figure.shot img');
+  if(img) openLightbox(img.src);
+});
+lightboxImg.addEventListener('click', e => { e.stopPropagation(); lightboxImg.classList.toggle('natural'); });
+lightbox.addEventListener('click', closeLightbox);
+$('#lbClose').addEventListener('click', closeLightbox);
+document.addEventListener('keydown', e => { if(e.key==='Escape' && !lightbox.hidden) closeLightbox(); });
 
 // ---- advisory settings: persisted in localStorage, edited in the modal ----
 const provider = $('#provider'), model = $('#model'), apiKey = $('#apiKey'), baseUrl = $('#baseUrl'),
@@ -478,7 +510,7 @@ function render(d){
   html += `<div class="res-grid ${hasImg?'two':''}">`;
   if(hasImg){
     html += `<figure class="shot"><img src="${d.overlay}" alt="Findings overlay — hidden content revealed in red">
-      <figcaption>The hidden content revealed in red, at its coordinates on the page.</figcaption></figure>`;
+      <figcaption>Annotated render of the flagged page — the hidden content revealed in red at its coordinates. <b style="color:var(--accent)">Click to enlarge.</b></figcaption></figure>`;
   }
   html += `<div style="display:grid;gap:var(--s5)">`;
 
