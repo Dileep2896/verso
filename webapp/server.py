@@ -35,14 +35,19 @@ app = Flask(__name__, static_folder=None)
 
 # --------------------------------------------------------------------------- #
 def _annotated_pdf_b64(result) -> str | None:
-    """A NEW copy of the document with findings marked in place (base64).
-
-    The browser renders it natively -- all pages, zoomable, downloadable -- so
-    the reviewer reads the real document with each hidden item marked at its
-    coordinates, instead of a flat raster of one page. Original is never touched.
-    """
+    """A NEW copy of the document with findings marked in place (base64), for
+    download. The original is never touched."""
     try:
         return base64.b64encode(annotate_bytes(result)).decode("ascii")
+    except Exception:
+        return None
+
+
+def _original_pdf_b64(result) -> str | None:
+    """The original PDF (base64) for Verso's own in-app viewer, which draws the
+    finding highlights itself so it can jump to and flash the exact spot."""
+    try:
+        return base64.b64encode(Path(result.path).read_bytes()).decode("ascii")
     except Exception:
         return None
 
@@ -64,7 +69,8 @@ def _result_json(result, advisory: bool) -> dict:
         "subject": result.subject(),
         "findings": [finding_dict(f) for f in result.findings],
         "advisory": result.advisory if advisory else [],
-        "pdf": _annotated_pdf_b64(result),
+        "pdf": _original_pdf_b64(result),          # for Verso's own viewer + overlays
+        "annotated": _annotated_pdf_b64(result),   # marked copy, for download
         "receipt": _receipt(result),
     }
 

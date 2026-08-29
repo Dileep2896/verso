@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* Hallmark · Workbench · modern-minimal · cobalt accent · red/green semantic status
  * tone: technical but plain-spoken · pre-emit critique: P5 H5 E4 S5 R4 V4 */
@@ -108,23 +109,56 @@ main{padding-block:clamp(24px,4vw,44px);display:grid;gap:var(--s5)}
 .card-h .hint{font-size:12.5px;color:var(--muted)}
 .card-b{padding:var(--s5)}
 
-/* pdf viewer */
-.viewer{width:100%;height:min(78vh,760px);min-height:420px;border:none;background:var(--sunk);display:block}
-.viewer-wrap{border-radius:0 0 var(--r3) var(--r3);overflow:hidden}
+/* Verso's own pdf viewer */
+.vtools{display:flex;align-items:center;gap:10px}
+.zbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink);cursor:pointer;font-size:16px;line-height:1}
+.zbtn:hover{border-color:var(--accent)} .zbtn:active{transform:translateY(1px)}
+.zlabel{font-family:var(--font-mono);font-size:12px;color:var(--muted);min-width:40px;text-align:center}
+.vcap{padding:12px var(--s5) 0;color:var(--muted);font-size:13.5px} .vcap b{color:var(--ink)}
+.pdfhost{height:min(76vh,760px);min-height:420px;overflow:auto;background:var(--sunk);padding:var(--s4);display:flex;flex-direction:column;align-items:center;gap:var(--s4);border-radius:0 0 var(--r3) var(--r3)}
+.pdf-load{color:var(--muted);font-family:var(--font-mono);font-size:14px;padding:var(--s7)}
+.pdfpage{position:relative;background:#fff;box-shadow:0 2px 12px -4px rgba(0,0,0,.35);flex:0 0 auto;max-width:100%}
+.pdfpage canvas{display:block;width:100%;height:100%}
+.olayer{position:absolute;inset:0;pointer-events:none}
+.ohl{position:absolute;pointer-events:auto;cursor:pointer;border-radius:2px;border:2px solid var(--danger);background:color-mix(in srgb,var(--danger) 16%,transparent);transition:background .12s}
+.ohl.medium{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 16%,transparent)}
+.ohl.low{border-color:var(--muted);background:color-mix(in srgb,var(--muted) 14%,transparent)}
+.ohl:hover{background:color-mix(in srgb,var(--danger) 30%,transparent)}
+.ohl.flash{animation:ohlflash 1.5s var(--ease-out)}
+@keyframes ohlflash{0%,100%{box-shadow:0 0 0 0 transparent}18%{box-shadow:0 0 0 5px var(--danger)}60%{box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 45%,transparent)}}
+.flash-card{animation:cardflash 1.2s var(--ease-out)}
+@keyframes cardflash{0%,100%{box-shadow:none}25%{box-shadow:0 0 0 3px var(--accent-wash)}}
+@media (prefers-reduced-motion:reduce){.ohl.flash,.flash-card{animation:none}}
 
-/* findings (plain) */
-.finding{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;margin-top:var(--s3);background:var(--panel-2)}
+/* findings (detailed: what / why / where) */
+.summary{font-size:14.5px;color:var(--muted);margin-bottom:var(--s4);padding-bottom:var(--s3);border-bottom:1px solid var(--line)}
+.summary b{font-weight:600}
+.c-high{color:var(--danger)} .c-med{color:var(--amber)} .c-low{color:var(--muted)}
+.finding{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;margin-top:var(--s4);background:var(--panel-2)}
 .finding:first-of-type{margin-top:0}
 .finding .stripe{flex:0 0 5px}
 .finding.high .stripe{background:var(--danger)} .finding.medium .stripe{background:var(--amber)} .finding.low .stripe{background:var(--line-2)}
-.finding .fb{padding:14px 16px;min-width:0;flex:1}
-.finding .ftitle{font-family:var(--font-display);font-weight:700;font-size:1.02rem}
-.finding .what{margin-top:4px;color:var(--muted);font-size:14px}
-.finding .quote{margin-top:10px;font-size:14.5px;color:var(--ink);border-left:2px solid var(--line-2);padding-left:12px;overflow-wrap:anywhere}
-.finding .tech{margin-top:9px;font-family:var(--font-mono);font-size:11px;color:var(--faint)}
-.finding .tech .sev{font-weight:600}
-.finding.high .tech .sev{color:var(--danger)} .finding.medium .tech .sev{color:var(--amber)}
+.finding .fb{padding:16px 18px;min-width:0;flex:1}
+.finding .fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.finding .ftitle{font-family:var(--font-display);font-weight:700;font-size:1.12rem}
+.sevchip{font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:20px}
+.sevchip.high{background:var(--danger-wash);color:var(--danger)} .sevchip.medium{background:var(--amber-wash);color:var(--amber)}
+.sevchip.low{background:var(--sunk);color:var(--muted);border:1px solid var(--line-2)}
+.finding .what{margin-top:6px;color:var(--muted);font-size:14.5px}
+.finding .why{margin-top:12px;font-size:14px;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:var(--r1);padding:11px 13px}
+.finding .why-k{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+.finding .quote{margin-top:12px;font-size:14.5px;color:var(--ink);border-left:3px solid var(--line-2);padding-left:13px;overflow-wrap:anywhere}
+.finding.high .quote{border-color:var(--danger)}
+.finding .quote .q-k{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+.finding .where{margin-top:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.jump{font-family:var(--font-body);font-weight:600;font-size:13px;color:var(--accent);background:var(--accent-wash);border:1px solid transparent;border-radius:var(--r1);padding:8px 13px;cursor:pointer;transition:background .14s var(--ease-out)}
+.jump:hover{background:color-mix(in srgb,var(--accent) 18%,var(--panel))} .jump:active{transform:translateY(1px)}
+.finding .tech{font-family:var(--font-mono);font-size:11px;color:var(--faint)}
+.finding .whereloc{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
 .empty-note{color:var(--muted);font-size:14px}
+.card.flash{animation:flash .9s var(--ease-out)}
+@keyframes flash{0%{box-shadow:0 0 0 0 var(--accent)}28%{box-shadow:0 0 0 3px var(--accent-wash)}100%{box-shadow:var(--shadow)}}
+@media (prefers-reduced-motion:reduce){.card.flash{animation:none}}
 
 .ahit{border-top:1px solid var(--line);padding:12px 0;font-size:14px} .ahit:first-child{border-top:none}
 .ahit .r{color:var(--amber);font-family:var(--font-mono);font-size:12px;font-weight:600}
@@ -256,26 +290,27 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
 const $ = s => document.querySelector(s);
 const results = $('#results');
 
-// ---- plain-language descriptions of each rule ----
+// ---- plain-language descriptions: [title, what it is, why it matters] ----
 const RULE_INFO = {
-  'A1.render_mode_3':['Invisible text','A line of text is written into the file but painted so nothing appears on the page.'],
-  'A1.alpha_zero':['Invisible text','Text drawn fully transparent — present to a parser, invisible to a reader.'],
-  'A1.color_match':['Hidden text','Text the same colour as the background behind it, so a reader sees nothing.'],
-  'A2.off_cropbox':['Off-page text','Text positioned outside the visible page — a parser reads it, a viewer never shows it.'],
-  'A3.occlusion':['Text hidden under a box','Readable text sits underneath an opaque rectangle — like a redaction with the words still there.'],
-  'A4.microtype':['Microscopic text','Text set far too small for a person to read, but perfectly readable to a parser.'],
-  'A5.javascript':['Embedded JavaScript','The document carries executable code. An agent should not run or ingest it blindly.'],
-  'A5.embedded_file':['Embedded file','A file is attached and hidden inside the document.'],
-  'A5.open_action':['Auto-run action','The document is set to run an action the moment it opens.'],
-  'A5.hidden_annotation':['Hidden note','An annotation carrying text, with the “hidden” flag set so it never displays.'],
-  'A5.info_custom_key':['Unusual metadata','A non-standard metadata field a naive pipeline might feed to a model as content.'],
-  'A5.xmp_custom_namespace':['Custom metadata','A custom metadata block outside the standard set.'],
-  'A5.annotation_content':['Annotation text','Text stored inside a document annotation.'],
-  'A5.form_default':['Form default value','A default value stored in a form field.'],
-  'A5.outline_title':['Bookmark','A bookmark / outline entry.'],
-  'A5.ocg_name':['Layer name','An optional-content (layer) name.'],
+  'A1.render_mode_3':['Invisible text','A line of text is written into the file but painted so nothing appears on the page.','An agent that reads the document’s text sees this line; nobody reviewing the page ever will.'],
+  'A1.alpha_zero':['Invisible text','Text drawn fully transparent — present to a parser, invisible to a reader.','An agent reads it as normal content while a person sees a blank spot.'],
+  'A1.color_match':['Hidden text','Text the same colour as the background behind it, so a reader sees nothing.','Extractors return this text; a human sees an empty area.'],
+  'A2.off_cropbox':['Off-page text','Text positioned outside the visible page — a parser reads it, a viewer never shows it.','Extractors return text that never appears on any printed or on-screen page.'],
+  'A3.occlusion':['Text hidden under a box','Readable text sits underneath an opaque rectangle — like a redaction with the words still there.','Redaction and extraction pipelines that work on the text layer miss that the words are still in the file.'],
+  'A4.microtype':['Microscopic text','Text set far too small for a person to read, but perfectly readable to a parser.','A classic way to smuggle instructions past human review while an agent reads them fine.'],
+  'A5.javascript':['Embedded JavaScript','The document carries executable code.','Code an agent should never run, and never treat as document content.'],
+  'A5.embedded_file':['Embedded file','A file is attached and hidden inside the document.','A naive pipeline may extract the attachment and feed it onward as if it were part of the document.'],
+  'A5.open_action':['Auto-run action','The document is set to run an action the moment it opens.','Anything that runs on open is a foothold an agent should not trigger.'],
+  'A5.hidden_annotation':['Hidden note','An annotation carrying text, with the “hidden” flag set so it never displays.','Harvested by extractors, invisible to the reader — a place to plant instructions.'],
+  'A5.info_custom_key':['Unusual metadata','A non-standard metadata field.','A naive pipeline may concatenate it into a model prompt as if it were content.'],
+  'A5.xmp_custom_namespace':['Custom metadata','A custom metadata block outside the standard set.','Metadata an ingestion pipeline may treat as document content.'],
+  'A5.annotation_content':['Annotation text','Text stored inside a document annotation.','A pipeline may ingest annotation text as content even though it is not on the page.'],
+  'A5.form_default':['Form default value','A default value stored in a form field.','Form defaults are routinely harvested and fed to models as content.'],
+  'A5.outline_title':['Bookmark','A bookmark / outline entry.','Outline text a pipeline may ingest as content.'],
+  'A5.ocg_name':['Layer name','An optional-content (layer) name.','Layer names a pipeline may treat as content.'],
 };
-function ruleInfo(rule){ return RULE_INFO[rule] || [rule, 'Content present in the file but not shown to a reader.']; }
+function ruleInfo(rule){ return RULE_INFO[rule] || [rule, 'Content present in the file but not shown to a reader.', 'An agent reading this document would see it.']; }
+const SEV_WORD = {high:'Hidden from readers', medium:'Worth a look', low:'Informational'};
 
 // ---- upload ----
 const drop = $('#drop'), fileInput = $('#file');
@@ -297,18 +332,71 @@ async function scanFile(file){
   catch(err){ results.innerHTML = verdictCard('e','Something went wrong', escapeHtml(String(err)), ''); }
 }
 
-let currentPdfUrl = null;
-function pdfUrl(b64){
-  if(currentPdfUrl){ URL.revokeObjectURL(currentPdfUrl); currentPdfUrl=null; }
-  if(!b64) return null;
-  const bin = atob(b64), arr = new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
-  currentPdfUrl = URL.createObjectURL(new Blob([arr],{type:'application/pdf'}));
-  return currentPdfUrl;
+// ---- Verso's own PDF viewer (pdf.js) with finding highlights ----
+if(window.pdfjsLib){ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+const blobUrls = [];
+function b64ToBytes(b64){ const bin=atob(b64), a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }
+function blobUrl(b64){ const u=URL.createObjectURL(new Blob([b64ToBytes(b64)],{type:'application/pdf'})); blobUrls.push(u); return u; }
+function clearBlobs(){ blobUrls.forEach(u=>URL.revokeObjectURL(u)); blobUrls.length=0; }
+
+let VW = { pdf:null, findings:[], zoom:1, io:null };
+async function buildViewer(b64, findings){
+  const host = document.getElementById('pdfhost'); if(!host || !window.pdfjsLib) return;
+  host.innerHTML = '<div class="pdf-load"><span class="spinner"></span>&nbsp; rendering document…</div>';
+  try { VW.pdf = await pdfjsLib.getDocument({data:b64ToBytes(b64)}).promise; }
+  catch(e){ host.innerHTML = '<div class="pdf-load">Could not render this PDF here — use “Download marked PDF”.</div>'; return; }
+  VW.findings = findings; VW.zoom = 1;
+  await layoutViewer();
 }
+async function layoutViewer(){
+  const host = document.getElementById('pdfhost'); if(!host || !VW.pdf) return;
+  if(VW.io) VW.io.disconnect();
+  host.innerHTML = '';
+  const fByPage = {}; VW.findings.forEach((f,idx)=>{ if(f.bbox){ (fByPage[f.page]=fByPage[f.page]||[]).push({b:f.bbox, sev:f.severity, idx}); } });
+  const hostW = host.clientWidth || 760;
+  VW.io = new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ const w=e.target; if(!w._rendered){ w._rendered=1; renderPage(w); } VW.io.unobserve(w); } }); }, {root:host, rootMargin:'500px'});
+  for(let p=1; p<=VW.pdf.numPages; p++){
+    const page = await VW.pdf.getPage(p);
+    const vp1 = page.getViewport({scale:1});
+    const scale = ((hostW-2)/vp1.width) * VW.zoom;
+    const w = document.createElement('div'); w.className='pdfpage'; w.dataset.page=p;
+    w.style.width=(vp1.width*scale)+'px'; w.style.height=(vp1.height*scale)+'px';
+    const canvas=document.createElement('canvas'); w.appendChild(canvas);
+    const ol=document.createElement('div'); ol.className='olayer'; w.appendChild(ol);
+    (fByPage[p]||[]).forEach(f=>{ const b=f.b; const o=document.createElement('div'); o.className='ohl '+f.sev; o.dataset.f=f.idx;
+      o.style.left=(b[0]*scale)+'px'; o.style.top=(b[1]*scale)+'px';
+      o.style.width=Math.max(6,(b[2]-b[0])*scale)+'px'; o.style.height=Math.max(6,(b[3]-b[1])*scale)+'px'; ol.appendChild(o); });
+    w._page=page; w._canvas=canvas; w._scale=scale;
+    host.appendChild(w); VW.io.observe(w);
+  }
+}
+async function renderPage(w){
+  const dpr = window.devicePixelRatio||1;
+  const vp = w._page.getViewport({scale: w._scale*dpr});
+  w._canvas.width = vp.width; w._canvas.height = vp.height;
+  w._canvas.style.width='100%'; w._canvas.style.height='100%';
+  try { await w._page.render({canvasContext: w._canvas.getContext('2d'), viewport: vp}).promise; } catch(e){}
+}
+function jumpToFinding(idx){
+  const host = document.getElementById('pdfhost'); if(!host) return;
+  const ov = host.querySelector('.ohl[data-f="'+idx+'"]'); if(!ov) return;
+  const w = ov.closest('.pdfpage'); if(w && !w._rendered){ w._rendered=1; renderPage(w); }
+  ov.scrollIntoView({behavior:'smooth', block:'center'});
+  ov.classList.remove('flash'); void ov.offsetWidth; ov.classList.add('flash');
+}
+results.addEventListener('click', e=>{
+  const jb = e.target.closest && e.target.closest('.jump');
+  if(jb){ jumpToFinding(jb.getAttribute('data-f')); return; }
+  const ov = e.target.closest && e.target.closest('.ohl');
+  if(ov){ const c=document.getElementById('finding-'+ov.dataset.f); if(c){ c.scrollIntoView({behavior:'smooth',block:'center'}); c.classList.remove('flash-card'); void c.offsetWidth; c.classList.add('flash-card'); } return; }
+  const zb = e.target.closest && e.target.closest('.zbtn');
+  if(zb){ VW.zoom = Math.min(3, Math.max(0.5, VW.zoom + (zb.dataset.z==='in'?0.25:-0.25)));
+    const zl=document.getElementById('zlabel'); if(zl) zl.textContent = Math.abs(VW.zoom-1)<0.01?'Fit':Math.round(VW.zoom*100)+'%'; layoutViewer(); }
+});
 
 function render(d, fname){
   if(d.error && !d.decision){ results.innerHTML = verdictCard('e','Couldn’t read this file', escapeHtml(d.error), ''); return; }
+  clearBlobs();
   const dec = d.decision, subj = d.subject||{};
   fname = subj.filename || fname || 'document.pdf';
   const highs = (d.findings||[]).filter(f=>f.severity==='high');
@@ -330,32 +418,55 @@ function render(d, fname){
 
   if(dec==='error'){ results.innerHTML = html+`</div>`; return; }
 
-  // marked document viewer
-  const url = pdfUrl(d.pdf);
-  if(url){
-    html += `<div class="card"><div class="card-h">
-        <span class="t">Your document, marked</span>
-        <a class="btn ghost" href="${url}" download="${escapeHtml(fname.replace(/\.pdf$/i,''))}.marked.pdf">Download marked PDF ↓</a>
+  // Verso's own document viewer (renders the original + draws the highlights)
+  const annUrl = d.annotated ? blobUrl(d.annotated) : null;
+  if(d.pdf){
+    html += `<div class="card" id="viewerCard"><div class="card-h">
+        <span class="t">Your document</span>
+        <div class="vtools">
+          <button class="zbtn" data-z="out" title="Zoom out">−</button>
+          <span class="zlabel" id="zlabel">Fit</span>
+          <button class="zbtn" data-z="in" title="Zoom in">+</button>
+          ${annUrl?`<a class="btn ghost" href="${annUrl}" download="${escapeHtml(fname.replace(/\.pdf$/i,''))}.marked.pdf">Download marked PDF ↓</a>`:''}
+        </div>
       </div>
-      <div style="padding:12px var(--s5) 0;color:var(--muted);font-size:13.5px">${dec==='quarantined'
-        ? 'Each hidden item is boxed at its exact spot. Scroll or use the viewer to see every page; hover a mark to read what it is.'
-        : 'Nothing was hidden — here is the document, all pages, for your review.'}</div>
-      <div class="card-b"><div class="viewer-wrap" style="border:1px solid var(--line);border-radius:var(--r2)">
-        <iframe class="viewer" src="${url}#toolbar=1&navpanes=0" title="Marked document"></iframe>
-      </div></div></div>`;
+      <div class="vcap">${dec==='quarantined'
+        ? 'Each hidden item is highlighted where it sits. Click <b>“Show on page”</b> under a finding to jump straight to it.'
+        : 'No hidden content — here is your document, all pages.'}</div>
+      <div class="card-b" style="padding:0"><div id="pdfhost" class="pdfhost"></div></div></div>`;
   }
 
-  // what was found (plain)
+  // what was found (detailed: what / why / where)
   if(d.findings && d.findings.length){
+    const byPage = {}; d.findings.forEach(f=>{ if(f.bbox) byPage[f.page]=1; });
+    const pages = Object.keys(byPage).map(n=>+n).sort((a,b)=>a-b);   // f.page is already 1-indexed
+    const nHi = d.findings.filter(f=>f.severity==='high').length;
+    const nMd = d.findings.filter(f=>f.severity==='medium').length;
+    const nLo = d.findings.filter(f=>f.severity==='low').length;
+    const parts = [];
+    if(nHi) parts.push(`<b class="c-high">${nHi} hidden from readers</b>`);
+    if(nMd) parts.push(`<b class="c-med">${nMd} worth a look</b>`);
+    if(nLo) parts.push(`<span class="c-low">${nLo} informational</span>`);
+    const where = pages.length ? ` · on ${pages.length===1?'page':'pages'} ${pages.join(', ')}` : ' · in the document’s metadata';
+
     html += `<div class="card"><div class="card-h"><span class="t">What was found</span><span class="hint">${d.findings.length} item(s)</span></div><div class="card-b">`;
-    d.findings.forEach(f=>{
-      const [title, what] = ruleInfo(f.rule);
-      const loc = f.bbox ? `page ${f.page} · [${f.bbox.join(', ')}]` : `page ${f.page} · metadata`;
-      html += `<div class="finding ${f.severity}"><span class="stripe"></span><div class="fb">
-        <div class="ftitle">${escapeHtml(title)}</div>
+    html += `<div class="summary">${parts.join(' &nbsp;·&nbsp; ')}${where}</div>`;
+    d.findings.forEach((f,i)=>{
+      const [title, what, why] = ruleInfo(f.rule);
+      const located = !!f.bbox;
+      const loc = located ? `page ${f.page} · [${f.bbox.join(', ')}]` : 'document-wide (metadata)';
+      html += `<div class="finding ${f.severity}" id="finding-${i}"><span class="stripe"></span><div class="fb">
+        <div class="fhead">
+          <div class="ftitle">${escapeHtml(title)}</div>
+          <span class="sevchip ${f.severity}">${escapeHtml(SEV_WORD[f.severity]||f.severity)}</span>
+        </div>
         <div class="what">${escapeHtml(what)}</div>
-        ${f.excerpt ? `<div class="quote">“${escapeHtml(f.excerpt)}${f.excerpt_truncated?'…':''}”</div>` : ''}
-        <div class="tech"><span class="sev">${f.severity}</span> · ${escapeHtml(f.rule)} · ${loc}</div>
+        <div class="why"><span class="why-k">Why it matters</span>${escapeHtml(why)}</div>
+        ${f.excerpt ? `<div class="quote"><span class="q-k">Hidden content</span>“${escapeHtml(f.excerpt)}${f.excerpt_truncated?'…':''}”</div>` : ''}
+        <div class="where">
+          ${located ? `<button class="jump" type="button" data-f="${i}">Show on page ${f.page} →</button>` : `<span class="whereloc">document-wide (metadata)</span>`}
+          <span class="tech">${escapeHtml(f.rule)} · ${loc}</span>
+        </div>
       </div></div>`;
     });
     html += `</div></div>`;
@@ -384,6 +495,7 @@ function render(d, fname){
   html += `</div>`;
   results.innerHTML = html;
   results.scrollIntoView({behavior:'smooth', block:'start'});
+  if(d.pdf) buildViewer(d.pdf, d.findings);
 }
 
 function verdictCard(cls, head, say, tag){
