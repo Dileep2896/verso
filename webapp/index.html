@@ -8,10 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-/* Hallmark · redesign · macrostructure: Workbench · genre: modern-minimal
- * tone: technical/austere/precise · anchor hue: cool (cobalt) · red/green = semantic status
- * palette + fonts preserved from the project system (site/index.html) · motion-cut (3 primitives)
- * pre-emit critique: P5 H5 E4 S5 R4 V4 */
+/* Hallmark · Workbench · modern-minimal · cobalt accent · red/green semantic status
+ * tone: technical but plain-spoken · pre-emit critique: P5 H5 E4 S5 R4 V4 */
 :root{
   --bg:#E9EDF2; --panel:#FFFFFF; --panel-2:#F5F7FB; --sunk:#EEF2F7;
   --ink:#101722; --muted:#586579; --faint:#8A96A7; --line:#D6DDE7; --line-2:#C2CCD9;
@@ -19,15 +17,13 @@
   --danger:#C42B22; --danger-wash:#FBECEA; --danger-line:#EBB8B2;
   --ok:#0B7D53; --ok-wash:#E6F3EC; --ok-line:#AEDCC5; --amber:#A9701A; --amber-wash:#F6EEDD;
   --code-bg:#0C1017; --code-line:rgba(255,255,255,.08); --code-ink:#E3E9F2; --code-muted:#8593A6;
-  --code-red:#FF7168; --code-green:#5FD79E; --code-blue:#74B6FF; --code-amber:#EDBB58;
   --font-display:"Bricolage Grotesque",system-ui,sans-serif;
   --font-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
-  --r1:7px; --r2:11px; --r3:15px;
-  --shadow:0 1px 1px rgba(16,23,34,.04),0 10px 26px -18px rgba(16,23,34,.24);
-  --ease-out:cubic-bezier(.22,.61,.36,1); --ease-in-out:cubic-bezier(.65,0,.35,1);
-  --grid:rgba(16,23,34,.045);
+  --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --r1:8px; --r2:12px; --r3:16px;
+  --shadow:0 1px 1px rgba(16,23,34,.04),0 12px 30px -20px rgba(16,23,34,.24);
+  --ease-out:cubic-bezier(.22,.61,.36,1);
 }
 @media (prefers-color-scheme:dark){
   :root{
@@ -38,540 +34,393 @@
     --ok:#40C98A; --ok-wash:rgba(64,201,138,.11); --ok-line:rgba(64,201,138,.32);
     --amber:#E7B450; --amber-wash:rgba(231,180,80,.12);
     --code-bg:#05080C; --shadow:0 1px 1px rgba(0,0,0,.4),0 16px 40px -24px rgba(0,0,0,.75);
-    --grid:rgba(255,255,255,.05);
   }
 }
 *{box-sizing:border-box}
 html,body{overflow-x:clip}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.08;letter-spacing:-.015em}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:700;line-height:1.1;letter-spacing:-.015em}
 p{margin:0}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.mono{font-family:var(--font-mono)}
-.tnum{font-variant-numeric:tabular-nums}
-.wrap{width:100%;max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,3.5vw,40px)}
-.kicker{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mono{font-family:var(--font-mono)} .tnum{font-variant-numeric:tabular-nums}
+.wrap{width:100%;max-width:1080px;margin-inline:auto;padding-inline:clamp(16px,4vw,32px)}
+.kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
 
-/* ---- top bar ---- */
-header.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(9px);border-bottom:1px solid var(--line)}
-.bar-in{display:flex;align-items:center;justify-content:space-between;height:58px;gap:14px}
+header.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(9px);border-bottom:1px solid var(--line)}
+.bar-in{display:flex;align-items:center;justify-content:space-between;height:60px;gap:14px}
 .brand{display:flex;align-items:baseline;gap:10px}
-.brand .n{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:-.03em}
-.brand .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
-.status{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line-2);border-radius:20px;padding:6px 12px;background:var(--panel)}
-.status .sd{width:7px;height:7px;border-radius:50%;background:var(--faint)}
-.status.q{color:var(--danger);border-color:var(--danger-line)} .status.q .sd{background:var(--danger)}
-.status.c{color:var(--ok);border-color:var(--ok-line)} .status.c .sd{background:var(--ok)}
-@media(max-width:560px){.status .txt{display:none}}
+.brand .n{font-family:var(--font-display);font-weight:800;font-size:21px;letter-spacing:-.03em}
+.brand .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint)}
+.gear{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:20px;padding:7px 14px;cursor:pointer;transition:border-color .14s var(--ease-out)}
+.gear:hover{border-color:var(--accent)} .gear:active{transform:translateY(1px)} .gear .cog{width:15px;height:15px}
 
-/* ---- workbench ---- */
-main{padding-block:clamp(20px,3.5vw,36px)}
-.bench{display:grid;grid-template-columns:1fr;gap:var(--s5)}
-@media(min-width:980px){.bench{grid-template-columns:366px minmax(0,1fr);align-items:start}}
-.rail{display:grid;gap:var(--s4)}
-@media(min-width:980px){.rail{position:sticky;top:80px}}
+main{padding-block:clamp(24px,4vw,44px);display:grid;gap:var(--s5)}
+
+/* hero / upload */
+.hero{text-align:center;max-width:640px;margin-inline:auto}
+.hero h1{font-size:clamp(1.7rem,4.6vw,2.5rem);text-wrap:balance}
+.hero .lede{margin-top:var(--s3);color:var(--muted);font-size:clamp(1rem,2.2vw,1.12rem)}
+.hero .lede b{color:var(--ink);font-weight:600}
+.drop{margin-top:var(--s5);border:1.5px dashed var(--line-2);border-radius:var(--r3);padding:clamp(26px,5vw,42px) 22px;text-align:center;
+  cursor:pointer;background:var(--panel);transition:border-color .16s var(--ease-out),background .16s var(--ease-out)}
+.drop:hover{border-color:var(--accent)} .drop.drag{border-color:var(--accent);background:var(--accent-wash)}
+.drop .ic{width:44px;height:44px;margin:0 auto 12px;border-radius:11px;background:var(--accent-wash);color:var(--accent);display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:13px}
+.drop .big{font-family:var(--font-display);font-weight:700;font-size:1.25rem}
+.drop .sub{margin-top:6px;color:var(--muted);font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-body);font-weight:600;font-size:14px;padding:11px 20px;border-radius:var(--r1);border:1px solid transparent;cursor:pointer;transition:background .14s var(--ease-out),border-color .14s}
+.btn.primary{background:var(--accent);color:#fff} .btn.primary:hover{background:var(--accent-ink);text-decoration:none} .btn.primary:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--ink)} .btn.ghost:hover{border-color:var(--accent);text-decoration:none}
+.drop .pick{margin-top:16px}
+
+/* how-it-works / what-we-check (empty state) */
+.explain{display:grid;gap:var(--s4);grid-template-columns:1fr;max-width:900px;margin-inline:auto}
+@media(min-width:760px){.explain{grid-template-columns:1fr 1fr}}
+.ecard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r2);padding:var(--s5)}
+.ecard h3{font-size:1.05rem;margin-bottom:12px}
+.steps{display:grid;gap:12px}
+.step{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--muted)}
+.step .no{flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:var(--accent-wash);color:var(--accent);font-family:var(--font-mono);font-weight:600;font-size:12px;display:grid;place-items:center}
+.step b{color:var(--ink);font-weight:600}
+.checks{display:grid;gap:9px}
+.chk{display:flex;gap:10px;align-items:baseline;font-size:14px}
+.chk .d{flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-top:6px}
+.chk b{color:var(--ink);font-weight:600} .chk span{color:var(--muted)}
+
+/* verdict */
+.verdict{border-radius:var(--r3);border:1px solid var(--line);padding:var(--s5) var(--s6);position:relative;overflow:hidden}
+.verdict::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
+.verdict.q{background:var(--danger-wash);border-color:var(--danger-line)} .verdict.q::before{background:var(--danger)}
+.verdict.c{background:var(--ok-wash);border-color:var(--ok-line)} .verdict.c::before{background:var(--ok)}
+.verdict.e{background:var(--panel);border-color:var(--line-2)} .verdict.e::before{background:var(--amber)}
+.verdict .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.verdict .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:22px;flex:0 0 40px}
+.verdict.q .ico{background:var(--danger);color:#fff} .verdict.c .ico{background:var(--ok);color:#fff} .verdict.e .ico{background:var(--amber);color:#fff}
+.verdict h2{font-size:clamp(1.4rem,3.4vw,1.9rem)}
+.verdict.q h2{color:var(--danger)} .verdict.c h2{color:var(--ok)} .verdict.e h2{color:var(--amber)}
+.verdict .say{margin-top:12px;font-size:16px;color:var(--ink);max-width:70ch}
+.verdict .tag{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--muted);border:1px solid var(--line-2);border-radius:20px;padding:6px 12px;background:color-mix(in srgb,var(--panel) 55%,transparent)}
+@media(max-width:560px){.verdict .tag{margin-left:0}}
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--shadow)}
-.card-h{padding:14px var(--s4);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.card-h .t{font-family:var(--font-display);font-weight:700;font-size:15px}
-.card-b{padding:var(--s4)}
+.card-h{padding:14px var(--s5);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-h .t{font-family:var(--font-display);font-weight:700;font-size:1.05rem}
+.card-h .hint{font-size:12.5px;color:var(--muted)}
+.card-b{padding:var(--s5)}
 
-/* dropzone */
-.drop{border:1.5px dashed var(--line-2);border-radius:var(--r2);padding:26px 18px;text-align:center;cursor:pointer;
-  transition:border-color .16s var(--ease-out),background .16s var(--ease-out)}
-.drop:hover{border-color:var(--accent)}
-.drop.drag{border-color:var(--accent);background:var(--accent-wash)}
-.drop .ic{width:34px;height:34px;margin:0 auto 10px;border-radius:9px;background:var(--accent-wash);color:var(--accent);
-  display:grid;place-items:center;font-family:var(--font-mono);font-weight:600}
-.drop .big{font-family:var(--font-display);font-weight:700;font-size:1.05rem}
-.drop .sub{margin-top:5px;color:var(--muted);font-size:12.5px;line-height:1.4}
-.drop .pick{margin-top:14px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-body);font-weight:600;font-size:13.5px;
-  padding:9px 16px;border-radius:var(--r1);border:1px solid transparent;cursor:pointer;transition:background .14s var(--ease-out),border-color .14s}
-.btn.primary{background:var(--accent);color:#fff}
-.btn.primary:hover{background:var(--accent-ink)}
-.btn.primary:active{transform:translateY(1px)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+/* pdf viewer */
+.viewer{width:100%;height:min(78vh,760px);min-height:420px;border:none;background:var(--sunk);display:block}
+.viewer-wrap{border-radius:0 0 var(--r3) var(--r3);overflow:hidden}
 
-/* samples */
-.samples .grp{margin-top:var(--s3)}
-.samples .grp:first-child{margin-top:0}
-.samples .glabel{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
-.srow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r1);
-  padding:9px 11px;cursor:pointer;font-size:13px;margin-bottom:6px;transition:border-color .14s var(--ease-out),background .14s}
-.srow:hover{border-color:var(--accent);background:var(--panel)}
-.srow:last-child{margin-bottom:0}
-.srow .tag{font-family:var(--font-mono);font-weight:600;font-size:11px;padding:2px 7px;border-radius:5px;letter-spacing:.02em}
-.srow .tag.a{color:var(--danger);background:var(--danger-wash)}
-.srow .tag.c{color:var(--ok);background:var(--ok-wash)}
-.srow .mech{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
-
-/* advisory */
-.adv .flabel{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.adv .note{text-transform:none;letter-spacing:0;color:var(--faint)}
-.adv .field{margin-top:var(--s3)}
-.adv .field:first-child{margin-top:0}
-select,input[type=password],input[type=text],.adv input{width:100%;font-family:var(--font-mono);font-size:12.5px;padding:9px 11px;
-  border:1px solid var(--line-2);border-radius:var(--r1);background:var(--sunk);color:var(--ink);transition:border-color .14s}
-select:hover,.adv input:hover{border-color:var(--line-2)}
-select:focus-visible,.adv input:focus-visible{border-color:var(--accent)}
-.adv .hint{margin-top:var(--s3);font-size:12px;color:var(--muted);line-height:1.5}
-.adv .hint b{color:var(--ink)}
-.hidden{display:none!important}
-
-/* ---- readout ---- */
-.readout{min-height:60vh}
-.empty{background:var(--panel);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--shadow);overflow:hidden}
-.empty .grid-hero{position:relative;padding:var(--s7) var(--s5);
-  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:26px 26px}
-.empty h2{font-size:clamp(1.4rem,3vw,1.9rem);max-width:20ch;overflow-wrap:anywhere}
-.empty .lede{margin-top:var(--s3);color:var(--muted);max-width:52ch;font-size:15px}
-.views{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
-@media(min-width:620px){.views{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.view{background:var(--panel);padding:var(--s4)}
-.view .vn{font-family:var(--font-display);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
-.view .vs{font-family:var(--font-mono);font-size:10px;color:var(--accent);border:1px solid var(--accent-line,var(--line-2));padding:1px 6px;border-radius:12px}
-.view p{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.45}
-.exitkey{display:flex;flex-wrap:wrap;gap:8px;padding:var(--s4);border-top:1px solid var(--line);background:var(--panel-2)}
-.ek{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:7px}
-.ek b{color:var(--ink)} .ek .d{width:8px;height:8px;border-radius:50%}
-.ek .d.z{background:var(--ok)} .ek .d.t{background:var(--danger)} .ek .d.o{background:var(--amber)}
-
-/* decision plate */
-.plate{border-radius:var(--r3);border:1px solid var(--line);padding:var(--s5);display:flex;flex-wrap:wrap;gap:var(--s4);
-  align-items:center;justify-content:space-between;position:relative;overflow:hidden}
-.plate::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
-.plate.q{background:var(--danger-wash);border-color:var(--danger-line)} .plate.q::before{background:var(--danger)}
-.plate.c{background:var(--ok-wash);border-color:var(--ok-line)} .plate.c::before{background:var(--ok)}
-.plate.e{background:var(--panel);border-color:var(--line-2)} .plate.e::before{background:var(--amber)}
-.plate .lhs{display:flex;align-items:center;gap:14px;padding-left:6px}
-.plate .verdict{font-family:var(--font-display);font-weight:800;font-size:clamp(1.5rem,3.6vw,2rem);letter-spacing:-.02em}
-.plate.q .verdict{color:var(--danger)} .plate.c .verdict{color:var(--ok)} .plate.e .verdict{color:var(--amber)}
-.plate .sub{font-size:13px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
-.plate .exit{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);border:1px solid var(--line-2);border-radius:var(--r1);padding:9px 13px;background:color-mix(in srgb,var(--panel) 60%,transparent)}
-
-.stack{display:grid;gap:var(--s5);margin-top:var(--s5)}
-.res-grid{display:grid;grid-template-columns:1fr;gap:var(--s5)}
-@media(min-width:900px){.res-grid.two{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)}}
-figure.shot{margin:0;border:1px solid var(--line-2);border-radius:var(--r2);overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
-figure.shot img{display:block;width:100%;height:auto}
-figure.shot figcaption{padding:10px 13px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);background:var(--panel-2)}
-
-/* findings */
-.finding{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--r1);overflow:hidden;margin-top:var(--s2);background:var(--panel-2)}
+/* findings (plain) */
+.finding{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;margin-top:var(--s3);background:var(--panel-2)}
 .finding:first-of-type{margin-top:0}
-.finding .stripe{width:4px;flex:0 0 4px}
+.finding .stripe{flex:0 0 5px}
 .finding.high .stripe{background:var(--danger)} .finding.medium .stripe{background:var(--amber)} .finding.low .stripe{background:var(--line-2)}
-.finding .fb{padding:12px 14px;min-width:0;flex:1}
-.finding .fh{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.finding .rule{font-family:var(--font-mono);font-weight:600;font-size:13px}
-.sevtag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 6px;border-radius:4px}
-.sevtag.high{background:var(--danger);color:#fff} .sevtag.medium{background:var(--amber);color:#fff}
-.sevtag.low{background:var(--sunk);color:var(--muted);border:1px solid var(--line-2)}
-.finding .loc{font-family:var(--font-mono);font-size:11px;color:var(--faint);margin-left:auto}
-.finding .ex{margin-top:7px;font-size:13.5px;color:var(--ink);overflow-wrap:anywhere}
-.finding.low .ex{color:var(--muted)}
-.empty-note{color:var(--muted);font-size:13.5px}
+.finding .fb{padding:14px 16px;min-width:0;flex:1}
+.finding .ftitle{font-family:var(--font-display);font-weight:700;font-size:1.02rem}
+.finding .what{margin-top:4px;color:var(--muted);font-size:14px}
+.finding .quote{margin-top:10px;font-size:14.5px;color:var(--ink);border-left:2px solid var(--line-2);padding-left:12px;overflow-wrap:anywhere}
+.finding .tech{margin-top:9px;font-family:var(--font-mono);font-size:11px;color:var(--faint)}
+.finding .tech .sev{font-weight:600}
+.finding.high .tech .sev{color:var(--danger)} .finding.medium .tech .sev{color:var(--amber)}
+.empty-note{color:var(--muted);font-size:14px}
 
-/* advisory hits */
-.ahit{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
-.ahit:first-child{border-top:none}
+.ahit{border-top:1px solid var(--line);padding:12px 0;font-size:14px} .ahit:first-child{border-top:none}
 .ahit .r{color:var(--amber);font-family:var(--font-mono);font-size:12px;font-weight:600}
 .ahit .s{margin-top:5px;color:var(--muted)} .ahit .src{font-family:var(--font-mono);font-size:10.5px;color:var(--faint);margin-top:3px}
 
-/* document meta */
 .meta{display:grid;gap:0}
-.mrow{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:8px 0;border-top:1px solid var(--line)}
+.mrow{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:8px 0;border-top:1px solid var(--line)}
 .mrow:first-child{border-top:none} .mrow .k{color:var(--muted)} .mrow .v{font-family:var(--font-mono);text-align:right;word-break:break-all}
-
-/* receipt */
-.rc{background:var(--code-bg);border:1px solid var(--code-line);border-radius:var(--r2);overflow:hidden}
-.rc-h{padding:9px 13px;border-bottom:1px solid var(--code-line);font-family:var(--font-mono);font-size:11px;color:var(--code-muted);
-  display:flex;justify-content:space-between;gap:8px}
-.rc-h .ok{color:var(--code-green)}
+.rc{background:var(--code-bg);border:1px solid var(--code-line);border-radius:var(--r2);overflow:hidden;margin-top:8px}
+.rc-h{padding:9px 13px;border-bottom:1px solid var(--code-line);font-family:var(--font-mono);font-size:11px;color:var(--code-muted);display:flex;justify-content:space-between;gap:8px}
+.rc-h .ok{color:#5FD79E}
 .rc pre{margin:0;padding:14px;overflow-x:auto;font-family:var(--font-mono);font-size:11.5px;line-height:1.6;color:var(--code-ink);white-space:pre-wrap;word-break:break-word}
-details.rcw>summary{cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:10px;list-style:none;display:flex;align-items:center;gap:8px}
-details.rcw>summary::-webkit-details-marker{display:none}
-details.rcw>summary::before{content:"▸";color:var(--faint);transition:transform .15s var(--ease-out)}
-details.rcw[open]>summary::before{transform:rotate(90deg)}
+details.dets>summary,details.rcw>summary{cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:1rem;list-style:none;display:flex;align-items:center;gap:8px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸";color:var(--faint);transition:transform .15s var(--ease-out)} details[open]>summary::before{transform:rotate(90deg)}
+.dets .card-b>*+*{margin-top:var(--s4)}
 
 .spinner{width:20px;height:20px;border:3px solid var(--line-2);border-top-color:var(--accent);border-radius:50%;display:inline-block;vertical-align:middle;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
 .scanning{padding:var(--s7);text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:14px}
+.hidden{display:none!important}
 .foot{color:var(--faint);font-family:var(--font-mono);font-size:11px;text-align:center;padding:var(--s6) 0 var(--s5)}
+.stack{display:grid;gap:var(--s5)}
 
-@media (prefers-reduced-motion:no-preference){
-  .reveal{animation:rise .5s var(--ease-out) both}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-}
-
-/* ---- improved dropdown ---- */
-.selectwrap{position:relative}
-.selectwrap::after{content:"";position:absolute;right:12px;top:50%;width:8px;height:8px;pointer-events:none;
-  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg)}
-select{appearance:none;-webkit-appearance:none;padding-right:32px;cursor:pointer;font-weight:500}
-select:hover{border-color:var(--line-2);background:var(--panel)}
-select:focus-visible{border-color:var(--accent)}
-
-/* ---- top-bar settings button ---- */
-.bar-right{display:flex;align-items:center;gap:10px}
-.gear{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-body);font-weight:600;font-size:12.5px;color:var(--ink);
-  background:var(--panel);border:1px solid var(--line-2);border-radius:20px;padding:6px 13px;cursor:pointer;transition:border-color .14s var(--ease-out)}
-.gear:hover{border-color:var(--accent)}
-.gear:active{transform:translateY(1px)}
-.gear .cog{width:14px;height:14px;flex:0 0 14px}
-
-/* ---- advisory status card (rail) ---- */
-.advstat{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.advstat .val{font-family:var(--font-mono);font-size:13px}
-.advstat .val .on{color:var(--ok)} .advstat .val .off{color:var(--faint)}
-.advstat .sub{font-family:var(--font-mono);font-size:11px;color:var(--faint);margin-top:3px}
-.linkbtn{font-family:var(--font-body);font-weight:600;font-size:12.5px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px}
-.linkbtn:hover{text-decoration:underline}
-
-/* ---- settings modal ---- */
-.overlay{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--ink) 42%,transparent);backdrop-filter:blur(2px);
-  display:grid;place-items:center;padding:18px}
+/* advisory status + settings modal */
+.advbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r2);padding:12px var(--s4)}
+.advbar .v{font-family:var(--font-mono)} .advbar .on{color:var(--ok)} .advbar .off{color:var(--faint)}
+.linkbtn{font-weight:600;font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px} .linkbtn:hover{text-decoration:underline}
+.overlay{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--ink) 42%,transparent);backdrop-filter:blur(2px);display:grid;place-items:center;padding:18px}
 .overlay[hidden]{display:none}
-.modal{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r3);box-shadow:var(--shadow);
-  max-height:90vh;overflow:auto}
-@media (prefers-reduced-motion:no-preference){.modal{animation:pop .18s var(--ease-out) both}@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}}
+.modal{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r3);box-shadow:var(--shadow);max-height:90vh;overflow:auto}
 .modal-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:var(--s4) var(--s5);border-bottom:1px solid var(--line)}
 .modal-h h3{font-size:1.1rem} .modal-h .sub{font-size:12px;color:var(--muted);margin-top:2px}
-.xbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
+.xbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:15px}
 .xbtn:hover{border-color:var(--accent);color:var(--ink)}
 .modal-b{padding:var(--s5);display:grid;gap:var(--s4)}
 .field .flabel{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .field .note{text-transform:none;letter-spacing:0;color:var(--faint)}
+.selectwrap{position:relative}
+.selectwrap::after{content:"";position:absolute;right:12px;top:50%;width:8px;height:8px;pointer-events:none;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg)}
+select,input[type=password],input[type=text]{width:100%;font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--line-2);border-radius:var(--r1);background:var(--sunk);color:var(--ink);transition:border-color .14s}
+select{appearance:none;-webkit-appearance:none;padding-right:32px;cursor:pointer;font-weight:500}
+select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visible{border-color:var(--accent)}
 .modal .hint{font-size:12px;color:var(--muted);line-height:1.5;background:var(--sunk);border:1px solid var(--line);border-radius:var(--r1);padding:11px 13px}
 .modal .hint b{color:var(--ink)}
 .modal-f{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:var(--s4) var(--s5);border-top:1px solid var(--line)}
-.saved{font-family:var(--font-mono);font-size:12px;color:var(--ok);opacity:0;transition:opacity .2s}
-.saved.show{opacity:1}
-.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--ink)}
-.btn.ghost:hover{border-color:var(--danger);color:var(--danger)}
-
-/* ---- overlay lightbox (click the annotated image to read it full size) ---- */
-figure.shot img{cursor:zoom-in}
-.lightbox{position:fixed;inset:0;z-index:80;background:rgba(6,9,14,.94);overflow:auto;padding:clamp(12px,3vw,40px);display:grid;place-items:start center}
-.lightbox[hidden]{display:none}
-.lightbox img{display:block;width:min(1500px,96vw);max-width:none;height:auto;border-radius:8px;box-shadow:0 24px 60px -20px rgba(0,0,0,.8)}
-.lightbox img.natural{width:auto;cursor:zoom-out}
-.lb-close{position:fixed;top:16px;right:20px;z-index:81;width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);
-  background:rgba(20,26,36,.85);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
-.lb-close:hover{border-color:#fff}
-.lb-hint{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:81;font-family:var(--font-mono);font-size:12px;
-  color:rgba(255,255,255,.75);background:rgba(20,26,36,.7);padding:7px 14px;border-radius:20px;backdrop-filter:blur(6px)}
+.saved{font-family:var(--font-mono);font-size:12px;color:var(--ok);opacity:0;transition:opacity .2s} .saved.show{opacity:1}
 </style>
 </head>
 <body>
 <header class="bar"><div class="wrap bar-in">
-  <div class="brand"><span class="n">Verso</span><span class="k">scanner</span></div>
-  <div class="bar-right">
-    <div class="status" id="statusPill"><span class="sd"></span><span class="txt">deterministic · offline · no model consulted</span></div>
-    <button class="gear" id="settingsBtn" type="button" aria-haspopup="dialog">
-      <svg class="cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>Settings</button>
-  </div>
+  <div class="brand"><span class="n">Verso</span><span class="k">document firewall</span></div>
+  <button class="gear" id="settingsBtn" type="button" aria-haspopup="dialog">
+    <svg class="cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
 </div></header>
 
 <div class="wrap"><main>
-  <div class="bench">
-    <!-- CONTROL RAIL -->
-    <aside class="rail">
-      <div class="card">
-        <div class="card-h"><span class="t">Inspect a document</span><span class="kicker">step 1</span></div>
-        <div class="card-b">
-          <div id="drop" class="drop" tabindex="0" role="button" aria-label="Upload a PDF to scan">
-            <div class="ic">PDF</div>
-            <div class="big">Drop a PDF here</div>
-            <div class="sub">the firewall inspects it before any agent is allowed to read it</div>
-            <div class="pick"><button class="btn primary" type="button" id="pickBtn">Choose a file</button></div>
-            <input id="file" type="file" accept="application/pdf,.pdf" class="hidden">
-          </div>
-        </div>
-      </div>
+  <section class="hero">
+    <div class="kicker">check before an agent reads it</div>
+    <h1 style="margin-top:10px">Is anything hidden in this PDF?</h1>
+    <p class="lede">Verso inspects a document for text and data that lives <b>in the file but out of sight</b> — invisible ink, text off the page, words under a black box, executable code. Exactly what an AI agent would read, and a person never sees.</p>
+    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Upload a PDF to check">
+      <div class="ic">PDF</div>
+      <div class="big">Drop a PDF to check it</div>
+      <div class="sub">your file is inspected locally and never leaves this machine</div>
+      <div class="pick"><button class="btn primary" type="button" id="pickBtn">Choose a file</button></div>
+      <input id="file" type="file" accept="application/pdf,.pdf" class="hidden">
+    </div>
+  </section>
 
-      <div class="card">
-        <div class="card-h"><span class="t">Labeled samples</span><span class="kicker">from the corpus</span></div>
-        <div class="card-b samples" id="chips"><div class="mono" style="color:var(--faint);font-size:12px">loading…</div></div>
+  <section id="results">
+    <div class="explain" id="empty">
+      <div class="ecard">
+        <h3>How it works</h3>
+        <div class="steps">
+          <div class="step"><span class="no">1</span><div>You drop in a PDF. <b>Nothing is uploaded to the cloud</b> — it's checked right here.</div></div>
+          <div class="step"><span class="no">2</span><div>Verso compares what a <b>parser</b> reads against what a <b>person</b> sees, plus the file's hidden data. This is a fixed set of rules — <b>no AI decides</b>.</div></div>
+          <div class="step"><span class="no">3</span><div>You get a plain verdict and <b>the document with every hidden item marked</b>, page by page.</div></div>
+        </div>
       </div>
+      <div class="ecard">
+        <h3>What counts as hidden</h3>
+        <div class="checks">
+          <div class="chk"><span class="d"></span><div><b>Invisible text</b> <span>— written in the file, painted invisibly on the page</span></div></div>
+          <div class="chk"><span class="d"></span><div><b>Off-page text</b> <span>— positioned outside the visible page</span></div></div>
+          <div class="chk"><span class="d"></span><div><b>Text under a box</b> <span>— a redaction with the words still underneath</span></div></div>
+          <div class="chk"><span class="d"></span><div><b>Microscopic text</b> <span>— too small for a person to read</span></div></div>
+          <div class="chk"><span class="d"></span><div><b>Hidden code &amp; data</b> <span>— embedded scripts, files, and metadata</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <div class="card">
-        <div class="card-h"><span class="t">Advisory</span><span class="kicker">optional</span></div>
-        <div class="card-b">
-          <div class="advstat">
-            <div>
-              <div class="val" id="advVal"><span class="off">Off</span></div>
-              <div class="sub" id="advSub">structural detection only</div>
-            </div>
-            <button class="linkbtn" id="advSettingsLink" type="button">Configure ›</button>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- READOUT -->
-    <section class="readout" id="results">
-      <div class="empty" id="empty">
-        <div class="grid-hero">
-          <div class="kicker">the verso — the side you don't read</div>
-          <h2 style="margin-top:12px">What's in the file, not on the page.</h2>
-          <p class="lede">Verso builds three independent views of a PDF and refuses any content present to one but not the others — deterministically, before an agent reads a byte. Drop a document or pick a sample to see the diff.</p>
-        </div>
-        <div class="views">
-          <div class="view"><div class="vn">Stream <span class="vs">parser</span></div><p>Text as the parser sees it — coordinates, render mode, colour, alpha, paint order.</p></div>
-          <div class="view"><div class="vn">Render <span class="vs">human</span></div><p>Text as a human sees it — OCR of the rasterized page. Corroboration only.</p></div>
-          <div class="view"><div class="vn">Meta <span class="vs">off-page</span></div><p>XMP, annotations, form defaults, embedded files, document JavaScript.</p></div>
-        </div>
-        <div class="exitkey">
-          <span class="ek"><span class="d z"></span><b>exit 0</b> released</span>
-          <span class="ek"><span class="d t"></span><b>exit 2</b> quarantined</span>
-          <span class="ek"><span class="d o"></span><b>exit 1</b> error</span>
-        </div>
-      </div>
-    </section>
-  </div>
   <div class="foot">Verso · document firewall · Apache-2.0 · runs locally</div>
 </main></div>
 
 <!-- SETTINGS MODAL -->
 <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Advisory settings" hidden>
   <div class="modal">
-    <div class="modal-h">
-      <div><h3>Advisory settings</h3><div class="sub">Bring your own key for any model — saved in this browser.</div></div>
-      <button class="xbtn" id="settingsClose" type="button" aria-label="Close">✕</button>
-    </div>
+    <div class="modal-h"><div><h3>Advisory settings</h3><div class="sub">Optional AI second-opinion — bring your own key, saved in this browser.</div></div>
+      <button class="xbtn" id="settingsClose" type="button" aria-label="Close">✕</button></div>
     <div class="modal-b">
-      <div class="field">
-        <div class="flabel">Provider</div>
+      <div class="field"><div class="flabel">Provider</div>
         <div class="selectwrap"><select id="provider">
-          <option value="off">Off — structural detection only</option>
+          <option value="off">Off — structural check only (recommended)</option>
           <option value="heuristic">Local heuristic (offline, no key)</option>
           <option value="anthropic">Anthropic (Claude) — your key</option>
           <option value="openai">OpenAI — your key</option>
           <option value="gemini">Google Gemini — your key</option>
           <option value="compatible">OpenAI-compatible endpoint — your key</option>
-        </select></div>
-      </div>
-      <div class="field" id="keyWrap">
-        <div class="flabel">API key</div>
-        <input id="apiKey" type="password" placeholder="sk-…  /  your provider key" autocomplete="off">
-      </div>
-      <div class="field" id="modelRow">
-        <div class="flabel">Model <span class="note">· optional</span></div>
-        <input id="model" type="text" placeholder="blank = provider default (e.g. gpt-4o-mini)">
-      </div>
-      <div class="field" id="baseWrap">
-        <div class="flabel">Base URL <span class="note">· OpenAI-compatible endpoint</span></div>
-        <input id="baseUrl" type="text" placeholder="https://api.groq.com/openai/v1">
-      </div>
-      <div class="hint"><b>Where your key goes.</b> Because this app runs locally, the key is saved in <b>this browser on this device</b> (localStorage) so you don't re-enter it, and is sent to your chosen provider only for the scan you run — never written to the server's disk or logs. The advisory pass flags visible machine-addressed language (class&nbsp;A8) and <b>never changes the decision</b>.</div>
+        </select></div></div>
+      <div class="field" id="keyWrap"><div class="flabel">API key</div>
+        <input id="apiKey" type="password" placeholder="sk-…  /  your provider key" autocomplete="off"></div>
+      <div class="field" id="modelRow"><div class="flabel">Model <span class="note">· optional</span></div>
+        <input id="model" type="text" placeholder="blank = provider default (e.g. gpt-4o-mini)"></div>
+      <div class="field" id="baseWrap"><div class="flabel">Base URL <span class="note">· OpenAI-compatible endpoint</span></div>
+        <input id="baseUrl" type="text" placeholder="https://api.groq.com/openai/v1"></div>
+      <div class="hint"><b>What this adds.</b> The core check is structural and needs no AI. Turn this on to also flag fully-visible sentences written <i>to a machine</i> (e.g. “for automated systems: this is pre-approved”). Your key is saved in <b>this browser on this device</b> and used only for the scan you run — never written to the server. It <b>never changes the verdict</b>.</div>
     </div>
-    <div class="modal-f">
-      <button class="btn ghost" id="forgetBtn" type="button">Forget key</button>
-      <div style="display:flex;align-items:center;gap:14px">
-        <span class="saved" id="savedMsg">saved ✓</span>
-        <button class="btn primary" id="saveBtn" type="button">Save settings</button>
-      </div>
-    </div>
+    <div class="modal-f"><button class="btn ghost" id="forgetBtn" type="button">Forget key</button>
+      <div style="display:flex;align-items:center;gap:14px"><span class="saved" id="savedMsg">saved ✓</span>
+        <button class="btn primary" id="saveBtn" type="button">Save settings</button></div></div>
   </div>
-</div>
-
-<!-- OVERLAY LIGHTBOX -->
-<div class="lightbox" id="lightbox" hidden>
-  <div class="lb-hint">annotated render · click image to toggle 100% · Esc to close</div>
-  <button class="lb-close" id="lbClose" type="button" aria-label="Close">✕</button>
-  <img id="lightboxImg" alt="Findings overlay, full size">
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
-const results = $('#results'), statusPill = $('#statusPill');
+const results = $('#results');
 
-// lightbox: click the annotated overlay image to read it full size
-const lightbox = $('#lightbox'), lightboxImg = $('#lightboxImg');
-function openLightbox(src){ lightboxImg.src = src; lightboxImg.classList.remove('natural'); lightbox.hidden = false; }
-function closeLightbox(){ lightbox.hidden = true; lightboxImg.src = ''; }
-results.addEventListener('click', e => {
-  const img = e.target.closest && e.target.closest('figure.shot img');
-  if(img) openLightbox(img.src);
-});
-lightboxImg.addEventListener('click', e => { e.stopPropagation(); lightboxImg.classList.toggle('natural'); });
-lightbox.addEventListener('click', closeLightbox);
-$('#lbClose').addEventListener('click', closeLightbox);
-document.addEventListener('keydown', e => { if(e.key==='Escape' && !lightbox.hidden) closeLightbox(); });
+// ---- plain-language descriptions of each rule ----
+const RULE_INFO = {
+  'A1.render_mode_3':['Invisible text','A line of text is written into the file but painted so nothing appears on the page.'],
+  'A1.alpha_zero':['Invisible text','Text drawn fully transparent — present to a parser, invisible to a reader.'],
+  'A1.color_match':['Hidden text','Text the same colour as the background behind it, so a reader sees nothing.'],
+  'A2.off_cropbox':['Off-page text','Text positioned outside the visible page — a parser reads it, a viewer never shows it.'],
+  'A3.occlusion':['Text hidden under a box','Readable text sits underneath an opaque rectangle — like a redaction with the words still there.'],
+  'A4.microtype':['Microscopic text','Text set far too small for a person to read, but perfectly readable to a parser.'],
+  'A5.javascript':['Embedded JavaScript','The document carries executable code. An agent should not run or ingest it blindly.'],
+  'A5.embedded_file':['Embedded file','A file is attached and hidden inside the document.'],
+  'A5.open_action':['Auto-run action','The document is set to run an action the moment it opens.'],
+  'A5.hidden_annotation':['Hidden note','An annotation carrying text, with the “hidden” flag set so it never displays.'],
+  'A5.info_custom_key':['Unusual metadata','A non-standard metadata field a naive pipeline might feed to a model as content.'],
+  'A5.xmp_custom_namespace':['Custom metadata','A custom metadata block outside the standard set.'],
+  'A5.annotation_content':['Annotation text','Text stored inside a document annotation.'],
+  'A5.form_default':['Form default value','A default value stored in a form field.'],
+  'A5.outline_title':['Bookmark','A bookmark / outline entry.'],
+  'A5.ocg_name':['Layer name','An optional-content (layer) name.'],
+};
+function ruleInfo(rule){ return RULE_INFO[rule] || [rule, 'Content present in the file but not shown to a reader.']; }
 
-// ---- advisory settings: persisted in localStorage, edited in the modal ----
-const provider = $('#provider'), model = $('#model'), apiKey = $('#apiKey'), baseUrl = $('#baseUrl'),
-      keyWrap = $('#keyWrap'), modelRow = $('#modelRow'), baseWrap = $('#baseWrap');
-const REAL = new Set(['anthropic','openai','gemini','compatible']);
-const LS_KEY = 'verso-settings';
-const PROVIDER_LABEL = {off:'Off',heuristic:'Local heuristic',anthropic:'Anthropic',openai:'OpenAI',gemini:'Gemini',compatible:'OpenAI-compatible'};
-
-function syncProvider(){
-  const real = REAL.has(provider.value);
-  keyWrap.classList.toggle('hidden', !real);
-  modelRow.classList.toggle('hidden', !real);
-  baseWrap.classList.toggle('hidden', provider.value !== 'compatible');
-}
-function updateAdvStatus(){
-  const p = provider.value, val = $('#advVal'), sub = $('#advSub');
-  if(p === 'off'){ val.innerHTML = '<span class="off">Off</span>'; sub.textContent = 'structural detection only'; return; }
-  val.innerHTML = `<span class="on">${escapeHtml(PROVIDER_LABEL[p]||p)}</span>`;
-  if(p === 'heuristic'){ sub.textContent = 'offline heuristic · no key'; return; }
-  sub.textContent = apiKey.value ? ((model.value.trim()||'default model') + ' · key saved') : 'key needed — Configure ›';
-}
-function loadSettings(){
-  let s = {};
-  try { s = JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; } catch(e){}
-  provider.value = s.provider || 'off';
-  model.value = s.model || ''; baseUrl.value = s.base_url || ''; apiKey.value = s.api_key || '';
-  syncProvider(); updateAdvStatus();
-}
-function saveSettings(){
-  const s = {provider:provider.value, model:model.value.trim(), base_url:baseUrl.value.trim(), api_key:apiKey.value};
-  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch(e){}
-  updateAdvStatus();
-}
-provider.addEventListener('change', syncProvider);
-
-function advParams(fd){
-  if(provider.value === 'off') return;
-  fd.append('advisory','true');
-  if(REAL.has(provider.value)){
-    fd.append('provider', provider.value === 'compatible' ? 'openai' : provider.value);
-    fd.append('api_key', apiKey.value);
-    if(model.value.trim()) fd.append('model', model.value.trim());
-    if(provider.value === 'compatible' && baseUrl.value.trim()) fd.append('base_url', baseUrl.value.trim());
-  }
-}
-
-// settings modal
-const overlay = $('#settingsOverlay');
-function openSettings(){ overlay.hidden = false; setTimeout(()=>provider.focus(), 30); }
-function closeSettings(){ overlay.hidden = true; }
-$('#settingsBtn').addEventListener('click', openSettings);
-$('#advSettingsLink').addEventListener('click', openSettings);
-$('#settingsClose').addEventListener('click', closeSettings);
-overlay.addEventListener('click', e=>{ if(e.target === overlay) closeSettings(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !overlay.hidden) closeSettings(); });
-$('#saveBtn').addEventListener('click', ()=>{
-  saveSettings();
-  const m = $('#savedMsg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'), 1400);
-  setTimeout(closeSettings, 380);
-});
-$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value = ''; saveSettings(); });
-
-loadSettings();
-
-// upload wiring
+// ---- upload ----
 const drop = $('#drop'), fileInput = $('#file');
-$('#pickBtn').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
-drop.addEventListener('click', () => fileInput.click());
-drop.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); } });
-fileInput.addEventListener('change', () => { if(fileInput.files[0]) scanFile(fileInput.files[0]); });
-;['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
-;['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
-drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if(f) scanFile(f); });
+$('#pickBtn').addEventListener('click', e=>{ e.stopPropagation(); fileInput.click(); });
+drop.addEventListener('click', ()=>fileInput.click());
+drop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', ()=>{ if(fileInput.files[0]) scanFile(fileInput.files[0]); });
+;['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.add('drag'); }));
+;['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('drag'); }));
+drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f) scanFile(f); });
 
-function setStatus(kind, text){
-  statusPill.className = 'status' + (kind?(' '+kind):'');
-  statusPill.innerHTML = `<span class="sd"></span><span class="txt">${escapeHtml(text)}</span>`;
-}
 function loading(name){
-  setStatus('', 'scanning…');
-  results.innerHTML = `<div class="empty"><div class="scanning"><span class="spinner"></span>&nbsp;&nbsp;scanning ${escapeHtml(name)}…</div></div>`;
+  results.innerHTML = `<div class="card"><div class="scanning"><span class="spinner"></span>&nbsp;&nbsp;checking ${escapeHtml(name)}…</div></div>`;
 }
-async function scanFile(file){ loading(file.name); const fd=new FormData(); fd.append('file',file); advParams(fd); await post(fd); }
-async function scanSample(id,label){ loading(label); const fd=new FormData(); fd.append('sample',id); advParams(fd); await post(fd); }
-async function post(fd){
-  try{ const r = await fetch('/api/scan',{method:'POST',body:fd}); render(await r.json()); }
-  catch(err){ results.innerHTML = plate('e','ERROR', String(err), ''); setStatus('','error'); }
+async function scanFile(file){
+  loading(file.name);
+  const fd = new FormData(); fd.append('file', file); advParams(fd);
+  try{ const r = await fetch('/api/scan',{method:'POST',body:fd}); render(await r.json(), file.name); }
+  catch(err){ results.innerHTML = verdictCard('e','Something went wrong', escapeHtml(String(err)), ''); }
 }
 
-function render(d){
-  if(d.error && !d.decision){ results.innerHTML = plate('e','ERROR', d.error, ''); setStatus('','error'); return; }
-  const dec = d.decision, cls = dec==='quarantined'?'q':dec==='clean'?'c':'e';
-  const word = dec==='quarantined'?'QUARANTINED':dec==='clean'?'CLEAN':'ERROR';
-  const subj = d.subject || {}, fn = subj.filename || '';
-  const sub = dec==='error' ? (d.error||'could not scan') : `${fn} · ${subj.pages||0} page(s) · ${subj.bytes||0} bytes`;
-  setStatus(cls==='e'?'':cls, dec==='error'?'error': dec+' · exit '+d.exit_code);
+let currentPdfUrl = null;
+function pdfUrl(b64){
+  if(currentPdfUrl){ URL.revokeObjectURL(currentPdfUrl); currentPdfUrl=null; }
+  if(!b64) return null;
+  const bin = atob(b64), arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  currentPdfUrl = URL.createObjectURL(new Blob([arr],{type:'application/pdf'}));
+  return currentPdfUrl;
+}
 
-  let html = `<div class="reveal">` + plate(cls, word, sub, d.exit_code);
-  if(dec==='error'){ results.innerHTML = html+'</div>'; return; }
+function render(d, fname){
+  if(d.error && !d.decision){ results.innerHTML = verdictCard('e','Couldn’t read this file', escapeHtml(d.error), ''); return; }
+  const dec = d.decision, subj = d.subject||{};
+  fname = subj.filename || fname || 'document.pdf';
+  const highs = (d.findings||[]).filter(f=>f.severity==='high');
+  const nHigh = highs.length;
 
-  html += `<div class="stack">`;
-  const hasImg = !!d.overlay;
-  html += `<div class="res-grid ${hasImg?'two':''}">`;
-  if(hasImg){
-    html += `<figure class="shot"><img src="${d.overlay}" alt="Findings overlay — hidden content revealed in red">
-      <figcaption>Annotated render of the flagged page — the hidden content revealed in red at its coordinates. <b style="color:var(--accent)">Click to enlarge.</b></figcaption></figure>`;
+  let head, say, cls, tag;
+  if(dec==='quarantined'){
+    cls='q'; head = nHigh===1 ? '1 hidden item found' : `${nHigh} hidden items found`;
+    say = `This document contains content that is present in the file but not visible to a human reader. An AI agent reading it would see ${nHigh===1?'it':'them'}. Verso would refuse to release this file.`;
+    tag = 'quarantined · exit 2';
+  } else if(dec==='clean'){
+    cls='c'; head = 'Nothing hidden';
+    say = 'Verso found no content hidden from a human reader in this document. It would be released to the agent.';
+    tag = 'released · exit 0';
+  } else { cls='e'; head='Couldn’t read this file'; say = d.error||''; tag='error · exit 1'; }
+
+  let html = `<div class="stack">`;
+  html += verdictCard(cls, head, say, tag);
+
+  if(dec==='error'){ results.innerHTML = html+`</div>`; return; }
+
+  // marked document viewer
+  const url = pdfUrl(d.pdf);
+  if(url){
+    html += `<div class="card"><div class="card-h">
+        <span class="t">Your document, marked</span>
+        <a class="btn ghost" href="${url}" download="${escapeHtml(fname.replace(/\.pdf$/i,''))}.marked.pdf">Download marked PDF ↓</a>
+      </div>
+      <div style="padding:12px var(--s5) 0;color:var(--muted);font-size:13.5px">${dec==='quarantined'
+        ? 'Each hidden item is boxed at its exact spot. Scroll or use the viewer to see every page; hover a mark to read what it is.'
+        : 'Nothing was hidden — here is the document, all pages, for your review.'}</div>
+      <div class="card-b"><div class="viewer-wrap" style="border:1px solid var(--line);border-radius:var(--r2)">
+        <iframe class="viewer" src="${url}#toolbar=1&navpanes=0" title="Marked document"></iframe>
+      </div></div></div>`;
   }
-  html += `<div style="display:grid;gap:var(--s5)">`;
 
-  // findings
-  html += `<div class="card"><div class="card-h"><span class="t">Findings</span><span class="kicker">${d.findings.length} total</span></div><div class="card-b">`;
-  if(!d.findings.length){ html += `<div class="empty-note">No structural findings.</div>`; }
-  d.findings.forEach(f=>{
-    const loc = f.bbox ? `p${f.page} · [${f.bbox.join(', ')}]` : `p${f.page} · metadata`;
-    html += `<div class="finding ${f.severity}"><span class="stripe"></span><div class="fb">
-      <div class="fh"><span class="rule">${escapeHtml(f.rule)}</span><span class="sevtag ${f.severity}">${f.severity}</span><span class="loc">${loc}</span></div>
-      <div class="ex">${escapeHtml(f.excerpt)}${f.excerpt_truncated?'…':''}</div></div></div>`;
-  });
-  html += `</div></div>`;
-
-  // advisory
-  if(d.advisory && d.advisory.length){
-    html += `<div class="card"><div class="card-h"><span class="t">Advisory</span><span class="kicker">does not affect the decision</span></div><div class="card-b">`;
-    d.advisory.forEach(a=>{ html += `<div class="ahit"><div class="r">[${escapeHtml(a.class||'A8')}] p${a.page} · ${escapeHtml(a.reason||'')}</div>
-      <div class="s">“${escapeHtml(a.excerpt||'')}”</div><div class="src">${escapeHtml(a.source||'')}</div></div>`; });
+  // what was found (plain)
+  if(d.findings && d.findings.length){
+    html += `<div class="card"><div class="card-h"><span class="t">What was found</span><span class="hint">${d.findings.length} item(s)</span></div><div class="card-b">`;
+    d.findings.forEach(f=>{
+      const [title, what] = ruleInfo(f.rule);
+      const loc = f.bbox ? `page ${f.page} · [${f.bbox.join(', ')}]` : `page ${f.page} · metadata`;
+      html += `<div class="finding ${f.severity}"><span class="stripe"></span><div class="fb">
+        <div class="ftitle">${escapeHtml(title)}</div>
+        <div class="what">${escapeHtml(what)}</div>
+        ${f.excerpt ? `<div class="quote">“${escapeHtml(f.excerpt)}${f.excerpt_truncated?'…':''}”</div>` : ''}
+        <div class="tech"><span class="sev">${f.severity}</span> · ${escapeHtml(f.rule)} · ${loc}</div>
+      </div></div>`;
+    });
     html += `</div></div>`;
   }
 
-  // document meta
-  html += `<div class="card"><div class="card-h"><span class="t">Document</span><span class="kicker">subject</span></div><div class="card-b"><div class="meta">
-    ${mrow('filename',fn)}${mrow('sha-256',subj.sha256||'')}${mrow('pages',subj.pages)}${mrow('bytes',subj.bytes)}${mrow('revisions',subj.revisions)}${mrow('decision',dec+' (exit '+d.exit_code+')')}
-  </div></div></div>`;
-
-  // receipt
-  if(d.receipt){
-    html += `<div class="card"><div class="card-b"><details class="rcw"><summary>Signed refusal receipt · R3</summary>
-      <div class="rc"><div class="rc-h"><span>${escapeHtml(d.receipt.id||'receipt')}</span><span class="ok">ed25519 ✓</span></div>
-      <pre>${escapeHtml(JSON.stringify(d.receipt,null,2))}</pre></div></details></div></div>`;
+  // advisory
+  if(d.advisory && d.advisory.length){
+    html += `<div class="card"><div class="card-h"><span class="t">AI second-opinion</span><span class="hint">advisory — does not change the verdict</span></div><div class="card-b">`;
+    d.advisory.forEach(a=>{ html += `<div class="ahit"><div class="r">machine-addressed language · page ${a.page}</div>
+      <div class="s">“${escapeHtml(a.excerpt||'')}”</div><div class="src">${escapeHtml(a.reason||'')} · ${escapeHtml(a.source||'')}</div></div>`; });
+    html += `</div></div>`;
   }
 
-  html += `</div></div></div></div>`;
+  // details (metadata + receipt)
+  html += `<div class="card dets"><div class="card-b"><details class="dets"><summary>Technical details</summary>
+    <div class="meta" style="margin-top:14px">
+      ${mrow('filename',fname)}${mrow('sha-256',subj.sha256||'')}${mrow('pages',subj.pages)}${mrow('bytes',subj.bytes)}${mrow('revisions',subj.revisions)}${mrow('decision',dec+' (exit '+d.exit_code+')')}
+    </div>`;
+  if(d.receipt){
+    html += `<div style="margin-top:16px"><div style="font-family:var(--font-display);font-weight:700;font-size:.95rem;margin-bottom:6px">Signed refusal receipt (R3)</div>
+      <div class="rc"><div class="rc-h"><span>${escapeHtml(d.receipt.id||'receipt')}</span><span class="ok">ed25519 ✓</span></div>
+      <pre>${escapeHtml(JSON.stringify(d.receipt,null,2))}</pre></div></div>`;
+  }
+  html += `</details></div></div>`;
+
+  html += `</div>`;
   results.innerHTML = html;
+  results.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-function plate(cls, word, sub, exit){
-  const ex = (exit!==undefined && exit!=='') ? `<div class="exit">exit ${exit}</div>` : '';
-  return `<div class="plate ${cls}"><div class="lhs"><div><div class="verdict">${word}</div><div class="sub">${escapeHtml(sub)}</div></div></div>${ex}</div>`;
+function verdictCard(cls, head, say, tag){
+  const ico = cls==='q' ? '⚠' : cls==='c' ? '✓' : '!';
+  return `<div class="verdict ${cls}"><div class="top"><div class="ico">${ico}</div><h2>${escapeHtml(head)}</h2>
+    ${tag?`<span class="tag">${escapeHtml(tag)}</span>`:''}</div>
+    <div class="say">${escapeHtml(say)}</div></div>`;
 }
 function mrow(k,v){ if(v===undefined||v===null||v==='') return '';
   return `<div class="mrow"><span class="k">${k}</span><span class="v">${escapeHtml(String(v))}</span></div>`; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// samples
-fetch('/api/samples').then(r=>r.json()).then(d=>{
-  const box = $('#chips');
-  if(!d.built){ box.innerHTML='<div class="mono" style="color:var(--faint);font-size:12px">run <b>make corpus</b> to enable samples</div>'; return; }
-  box.innerHTML='';
-  const grp=(label)=>{ const g=document.createElement('div'); g.className='grp'; g.innerHTML=`<div class="glabel">${label}</div>`; box.appendChild(g); return g; };
-  const g1=grp('Adversarial');
-  d.attacks.slice(0,6).forEach(a=>{ const b=document.createElement('button'); b.className='srow';
-    b.innerHTML=`<span class="tag a">${a.attack_class}</span><span class="mech">${a.mechanism}</span>`;
-    b.onclick=()=>scanSample(a.id, a.id+' ('+a.mechanism+')'); g1.appendChild(b); });
-  const g2=grp('Clean controls');
-  d.clean.slice(0,3).forEach(c=>{ const b=document.createElement('button'); b.className='srow';
-    b.innerHTML=`<span class="tag c">clean</span><span class="mech">${c.kind}</span>`;
-    b.onclick=()=>scanSample(c.id, c.id); g2.appendChild(b); });
-}).catch(()=>{ $('#chips').innerHTML='<div class="mono" style="color:var(--faint);font-size:12px">samples unavailable</div>'; });
+// ---- advisory settings (persisted) + modal ----
+const provider=$('#provider'), model=$('#model'), apiKey=$('#apiKey'), baseUrl=$('#baseUrl'),
+      keyWrap=$('#keyWrap'), modelRow=$('#modelRow'), baseWrap=$('#baseWrap');
+const REAL=new Set(['anthropic','openai','gemini','compatible']); const LS_KEY='verso-settings';
+function syncProvider(){ const real=REAL.has(provider.value);
+  keyWrap.classList.toggle('hidden',!real); modelRow.classList.toggle('hidden',!real); baseWrap.classList.toggle('hidden',provider.value!=='compatible'); }
+function loadSettings(){ let s={}; try{ s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; }catch(e){}
+  provider.value=s.provider||'off'; model.value=s.model||''; baseUrl.value=s.base_url||''; apiKey.value=s.api_key||''; syncProvider(); }
+function saveSettings(){ const s={provider:provider.value,model:model.value.trim(),base_url:baseUrl.value.trim(),api_key:apiKey.value};
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(s)); }catch(e){} }
+provider.addEventListener('change', syncProvider);
+function advParams(fd){ if(provider.value==='off') return; fd.append('advisory','true');
+  if(REAL.has(provider.value)){ fd.append('provider', provider.value==='compatible'?'openai':provider.value); fd.append('api_key', apiKey.value);
+    if(model.value.trim()) fd.append('model', model.value.trim());
+    if(provider.value==='compatible'&&baseUrl.value.trim()) fd.append('base_url', baseUrl.value.trim()); } }
+const ov=$('#settingsOverlay');
+function openSettings(){ ov.hidden=false; setTimeout(()=>provider.focus(),30); }
+function closeSettings(){ ov.hidden=true; }
+$('#settingsBtn').addEventListener('click', openSettings);
+$('#settingsClose').addEventListener('click', closeSettings);
+ov.addEventListener('click', e=>{ if(e.target===ov) closeSettings(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'&&!ov.hidden) closeSettings(); });
+$('#saveBtn').addEventListener('click', ()=>{ saveSettings(); const m=$('#savedMsg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); setTimeout(closeSettings,380); });
+$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value=''; saveSettings(); });
+loadSettings();
 </script>
 </body>
 </html>

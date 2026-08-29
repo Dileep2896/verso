@@ -19,8 +19,8 @@ from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 
 from verso import __version__
+from verso.annotate import annotate_bytes
 from verso.errors import VersoError
-from verso.overlay import render_overlay
 from verso.receipt import build_r3_receipt, load_or_create_keypair
 from verso.scan import scan
 from verso.serialize import finding_dict
@@ -34,17 +34,15 @@ app = Flask(__name__, static_folder=None)
 
 
 # --------------------------------------------------------------------------- #
-def _overlay_data_uri(result) -> str | None:
-    """Render the findings overlay to a PNG and return it as a data URI."""
-    if not result.findings:
-        return None
+def _annotated_pdf_b64(result) -> str | None:
+    """A NEW copy of the document with findings marked in place (base64).
+
+    The browser renders it natively -- all pages, zoomable, downloadable -- so
+    the reviewer reads the real document with each hidden item marked at its
+    coordinates, instead of a flat raster of one page. Original is never touched.
+    """
     try:
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            tmp = f.name
-        render_overlay(result, tmp)
-        data = Path(tmp).read_bytes()
-        os.unlink(tmp)
-        return "data:image/png;base64," + base64.b64encode(data).decode("ascii")
+        return base64.b64encode(annotate_bytes(result)).decode("ascii")
     except Exception:
         return None
 
@@ -66,7 +64,7 @@ def _result_json(result, advisory: bool) -> dict:
         "subject": result.subject(),
         "findings": [finding_dict(f) for f in result.findings],
         "advisory": result.advisory if advisory else [],
-        "overlay": _overlay_data_uri(result),
+        "pdf": _annotated_pdf_b64(result),
         "receipt": _receipt(result),
     }
 
