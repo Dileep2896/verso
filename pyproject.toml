@@ -24,6 +24,8 @@ dependencies = [
 
 [project.optional-dependencies]
 web = ["flask>=3"]
+# Verso MCP gateway that sits in front of the Foxit PDF API MCP server.
+foxit = ["mcp<2"]
 # The advisory layer needs no SDK -- it calls any provider's REST API over
 # stdlib HTTP with your own key (Anthropic, OpenAI, Gemini, or compatible).
 

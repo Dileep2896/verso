@@ -13,5 +13,8 @@ pillow>=10
 # web app (make web)
 flask>=3
 
+# Foxit MCP gateway (pip install -e '.[foxit]')
+mcp<2
+
 # dev / test
 pytest>=8

@@ -181,10 +181,13 @@ honest than pretending the taxonomy is complete.
 
 ## Where the sponsors do the real work
 
-- **Foxit** is the downstream agent being protected. Its MCP document server is
-  registered behind Verso, so the agent's document tools cannot be invoked on
-  bytes that have not cleared the firewall — gated on exit code 2. See
-  [`integrations/foxit_gate.py`](integrations/foxit_gate.py).
+- **Foxit** is the downstream agent being protected. Verso runs as an **MCP
+  gateway in front of Foxit's open-source PDF MCP server**: the agent connects to
+  Verso, which re-exposes Foxit's 30+ document tools but scans the input document
+  before any of them runs — a quarantined file (exit 2) is refused with a signed
+  receipt and the Foxit tool never executes. See
+  [`integrations/foxit_mcp_gateway.py`](integrations/foxit_mcp_gateway.py) and
+  [`integrations/README.md`](integrations/README.md).
 - **Nutrient DWS** is the extraction and human-review layer on the far side of
   the firewall: extraction runs on documents Verso releases, and flagged findings
   are handed to a reviewer with their coordinates overlaid. See
