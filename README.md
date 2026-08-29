@@ -203,15 +203,31 @@ sponsor services, add credentials:
 
 **Foxit — MCP gateway (primary track).** Foxit's free Developer plan includes
 **500 shared credits/year**, which cover the PDF Services API this uses. Get a
-`client_id` / `client_secret` at the Foxit API developer portal
-(`app.developer-api.foxit.com` → *Start for free*), then:
+`client_id` / `client_secret` from the Foxit API developer portal
+(`developer-api.foxit.com` → *Start for free* → **Applications → Manage**), then
+install Foxit's open-source server
+([`foxitsoftware/foxit-pdf-api-mcp-server`](https://github.com/foxitsoftware/foxit-pdf-api-mcp-server)):
 
 ```bash
-pip install -e '.[foxit]'                     # adds the MCP SDK
+pip install -e '.[foxit]'                     # adds the MCP SDK to Verso
+git clone https://github.com/foxitsoftware/foxit-pdf-api-mcp-server
+pip install -e foxit-pdf-api-mcp-server/python/foxit-pdf-api-mcp-server
+
 export FOXIT_CLIENT_ID=...  FOXIT_CLIENT_SECRET=...
-export FOXIT_MCP_COMMAND="python -m foxit_pdf_api_mcp_server"   # Foxit's open-source server
+export FOXIT_MCP_COMMAND="python -m integrations.foxit_server_launch"
+# optional: export FOXIT_CLOUD_API_HOST=https://na1.fusion.foxit.com/pdf-services
 python -m integrations.foxit_mcp_gateway      # point your MCP host (Claude Desktop, ...) here
 ```
+
+The gateway translates `FOXIT_CLIENT_ID`/`FOXIT_CLIENT_SECRET` into the
+`FOXIT_CLOUD_API_*` names Foxit's server expects, so you only set them once here.
+We launch the server through `integrations.foxit_server_launch`, a two-line shim
+that works around entry-point bugs in Foxit's 0.2.3 release (its console script
+names a nonexistent module, and its `main()` mis-runs the `fastmcp>=3` server);
+the shim imports the assembled server and runs it directly over stdio. Verified
+end-to-end: the gateway spawns the real server and exposes its **32 PDF tools**,
+each gated on exit code 2. With no `FOXIT_MCP_COMMAND` set it runs against a local
+fake backend, so the gate is fully demonstrable offline.
 
 The agent now sees Foxit's 30+ document tools, each gated on exit code 2.
 Quarantined inputs are refused with a signed receipt in `receipts/foxit-gateway/`

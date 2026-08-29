@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import os
 import shlex
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
@@ -161,14 +162,30 @@ class RealFoxitBackend:
 
 def build_backend():
     """Real Foxit backend if credentials + launch command are configured, else fake."""
-    client_id = os.environ.get("FOXIT_CLIENT_ID")
-    client_secret = os.environ.get("FOXIT_CLIENT_SECRET")
+    # Accept either our own short names or Foxit's own FOXIT_CLOUD_API_* names.
+    client_id = os.environ.get("FOXIT_CLIENT_ID") or os.environ.get("FOXIT_CLOUD_API_CLIENT_ID")
+    client_secret = (os.environ.get("FOXIT_CLIENT_SECRET")
+                     or os.environ.get("FOXIT_CLOUD_API_CLIENT_SECRET"))
     command = os.environ.get("FOXIT_MCP_COMMAND")
     if client_id and client_secret and command:
         args = shlex.split(os.environ.get("FOXIT_MCP_ARGS", ""))
+        argv = shlex.split(command) + args
+        # A bare "python"/"python3" in the launch command must resolve to THIS
+        # interpreter (the venv that has the Foxit package installed), not whatever
+        # a subprocess PATH lookup would find. shlex.split isn't shell-alias aware.
+        if argv and argv[0] in ("python", "python3"):
+            argv[0] = sys.executable
+        # Foxit's own server reads FOXIT_CLOUD_API_* env vars, not our short names,
+        # so translate here. Host defaults to the NA fusion endpoint but is overridable.
+        host = (os.environ.get("FOXIT_CLOUD_API_HOST")
+                or "https://na1.fusion.foxit.com/pdf-services")
         return RealFoxitBackend(
-            command=shlex.split(command) + args,
-            env={"FOXIT_CLIENT_ID": client_id, "FOXIT_CLIENT_SECRET": client_secret},
+            command=argv,
+            env={
+                "FOXIT_CLOUD_API_HOST": host,
+                "FOXIT_CLOUD_API_CLIENT_ID": client_id,
+                "FOXIT_CLOUD_API_CLIENT_SECRET": client_secret,
+            },
         )
     return LocalFakeBackend()
 

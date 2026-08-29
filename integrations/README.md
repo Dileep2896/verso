@@ -22,17 +22,37 @@ pip install -e '.[foxit]'          # adds the MCP SDK
 python -m integrations.foxit_mcp_gateway
 ```
 
-With no Foxit credentials set it runs against a local fake backend, so the gate
+With no `FOXIT_MCP_COMMAND` set it runs against a local fake backend, so the gate
 itself is demonstrable offline. To gate the **real** Foxit tools, install Foxit's
-open-source server (`foxitsoftware/foxit-pdf-api-mcp-server`) and set:
+open-source server and set the launch command:
 
 ```bash
-export FOXIT_CLIENT_ID=...          # Foxit PDF Services credentials
+# install Foxit's open-source server
+git clone https://github.com/foxitsoftware/foxit-pdf-api-mcp-server
+pip install -e foxit-pdf-api-mcp-server/python/foxit-pdf-api-mcp-server
+
+export FOXIT_CLIENT_ID=...          # Foxit PDF Services credentials (from the portal)
 export FOXIT_CLIENT_SECRET=...
-export FOXIT_MCP_COMMAND="python -m foxit_pdf_api_mcp_server"   # how to launch it
+export FOXIT_MCP_COMMAND="python -m integrations.foxit_server_launch"   # stdio launcher
+# export FOXIT_CLOUD_API_HOST=...   # optional, defaults to https://na1.fusion.foxit.com/pdf-services
 # export FOXIT_MCP_ARGS="..."       # optional extra args
 python -m integrations.foxit_mcp_gateway
 ```
+
+Two things the gateway handles for you:
+
+- **Env-var translation.** Foxit's server reads `FOXIT_CLOUD_API_HOST` /
+  `FOXIT_CLOUD_API_CLIENT_ID` / `FOXIT_CLOUD_API_CLIENT_SECRET`; the gateway maps
+  your `FOXIT_CLIENT_ID` / `FOXIT_CLIENT_SECRET` into those names (and defaults the
+  host) when it launches the subprocess, so you set credentials in one place.
+- **Broken upstream entry points.** Foxit's 0.2.3 console script imports a module
+  name that doesn't exist, and its `main()` runs the `fastmcp>=3` server the old
+  (async) way and crashes on shutdown. `integrations/foxit_server_launch.py` is a
+  two-line shim that imports the assembled server and runs it correctly over stdio,
+  which is why `FOXIT_MCP_COMMAND` points at the shim rather than Foxit's script.
+
+A bare `python` in `FOXIT_MCP_COMMAND` is resolved to the interpreter running the
+gateway (your venv), so the Foxit package is always found.
 
 Then point your MCP host at the gateway. For Claude Desktop
 (`claude_desktop_config.json`):
@@ -46,7 +66,7 @@ Then point your MCP host at the gateway. For Claude Desktop
       "env": {
         "FOXIT_CLIENT_ID": "...",
         "FOXIT_CLIENT_SECRET": "...",
-        "FOXIT_MCP_COMMAND": "python -m foxit_pdf_api_mcp_server"
+        "FOXIT_MCP_COMMAND": "python -m integrations.foxit_server_launch"
       }
     }
   }

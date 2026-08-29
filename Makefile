@@ -37,6 +37,9 @@ demo:
 web:
 	$(PY) -m webapp
 
+foxit:
+	./integrations/run_foxit_gateway.sh
+
 all: corpus eval check lint
 
 clean:
