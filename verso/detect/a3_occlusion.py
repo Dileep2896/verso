@@ -26,15 +26,15 @@ from .base import (
 RULE = "A3.occlusion"
 OPAQUE_MIN = 0.98
 ON_PAGE_MIN = 0.5
-MIN_LEN = 3
+MIN_LEN = 6
 WHITE_MIN = 0.90
 INVISIBLE_RENDER_MODES = {3, 7}
-# A rendered region under this grayscale std-dev is a solid block -- the text is
-# actually hidden. Above it, the region still shows text/edges (a diagram, a
-# chart label, a form line), so the "covering" fill did not hide anything. A
-# clean redaction of black-on-white text renders near 0; a visible text line is
-# ~50-90. 18 sits well clear of both.
-UNIFORM_STDDEV = 18.0
+# A genuine redaction fully replaces the text with the fill colour, so the
+# rendered region is a near-pure block: measured std-dev 0.0 across the corpus.
+# A diagram label sitting inside a coloured box (e.g. the "BERT" node in a paper
+# figure) keeps its glyph edges, so its region still carries variance (~5-6).
+# 3.5 sits between the two: real occlusions pass, figure labels do not.
+UNIFORM_STDDEV = 3.5
 # maximum covering-fill area (as a multiple of the text box) to still be a
 # plausible redaction rather than a whole figure/page graphic swallowing labels
 MAX_COVER_RATIO = 60.0
