@@ -20,6 +20,32 @@ executable JavaScript, and a document firewall's stance is that an agent should
 not blindly ingest or execute it. That is a deliberate, explainable finding, not
 a bug — the receipt names exactly why.
 
+## `wild/` — assorted real documents (unverified)
+
+A grab-bag of real public PDFs from many different producers, for stress-testing
+false positives on genuine files. Not pre-checked — run them yourself. Span 1 to
+660 pages and six+ producers (pdfTeX, Adobe LiveCycle Designer, Acrobat
+Distiller, Prince, Antenna House).
+
+| File | Producer | Pages |
+|---|---|---|
+| `arxiv-attention.pdf` | pdfTeX (LaTeX) | 15 |
+| `arxiv-bert.pdf` | pdfTeX (LaTeX) | 16 |
+| `arxiv-deep-double-descent.pdf` | pdfTeX (LaTeX, math-heavy) | 24 |
+| `icelandic-dictionary.pdf` | Prince (HTML→PDF, dense columns) | 660 |
+| `usenix-paper.pdf` | Prince | 3 |
+| `antennahouse-sample.pdf` | Antenna House (XSL-FO) | 2 |
+| `irs-1040-form.pdf` | Adobe LiveCycle Designer (form) | 2 |
+| `irs-w4-form.pdf` | Adobe LiveCycle Designer (form) | 5 |
+| `uscis-i9-form.pdf` | Acrobat Distiller (form) | 4 |
+| `orimi-pdf-test.pdf` | Acrobat Distiller | 1 |
+
+Forms built with LiveCycle Designer often carry document JavaScript, so expect
+some of them to quarantine on `A5.javascript` — that is the firewall doing its
+job on real executable content, not a false positive. The papers and the
+dictionary are good tests for the occlusion / microtype false positives that
+real figures and dense typesetting used to trigger.
+
 ## `attacks/` — labeled adversarial files
 
 Each carries one hidden payload. All quarantine (exit 2).

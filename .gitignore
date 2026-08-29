@@ -18,6 +18,7 @@ graphify-out/
 # downloaded third-party sample PDFs (re-fetch via test-pdfs/README.md); our own
 # labeled attack samples under test-pdfs/attacks/ are kept
 test-pdfs/clean/*.pdf
+test-pdfs/wild/*.pdf
 
 # macOS
 .DS_Store
