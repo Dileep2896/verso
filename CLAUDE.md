@@ -83,6 +83,8 @@ depend on it.
 verso scan <path>            # exit 0 clean, exit 2 quarantined, exit 1 error
 verso scan <path> --json     # findings as JSON on stdout
 verso scan <path> --receipt out.json   # emit a signed refusal receipt
+verso scan <path> --overlay out.png    # rasterized page with findings drawn on it
+verso scan <path> --annotate out.pdf   # new pdf with findings marked in place (original untouched)
 verso sanitize <path> -o <path>        # emit cleaned copy, refuse if unsafe
 verso ledger verify <dir>    # verify receipt chain integrity
 ```

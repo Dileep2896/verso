@@ -123,10 +123,35 @@ make test                   # unit + cross-tool tests
 verso keygen                                              # signing keypair
 verso scan corpus/build/attacks/A1-01.pdf ; echo $?       # -> 2
 verso scan corpus/build/clean/clean_lease.pdf ; echo $?   # -> 0
+
+# emit the evidence: a raster overlay, an annotated copy of the PDF, a receipt
 verso scan corpus/build/attacks/A3-02.pdf \
-    --overlay out.png --receipt r.json --ledger receipts/
+    --overlay out.png \          # rasterized page with findings drawn on it
+    --annotate marked.pdf \      # a NEW pdf with findings marked in place (original untouched)
+    --receipt r.json --ledger receipts/
 verso ledger verify receipts/
+verso sanitize dirty.pdf -o clean.pdf     # strip metadata attacks, refuse if unsafe
 ```
+
+Try it on real files in [`test-pdfs/`](test-pdfs/) — real public documents in
+`clean/` (a clean paper and article; the IRS W-9 quarantines on its embedded
+JavaScript) and labeled adversarial files in `attacks/`.
+
+## Web app
+
+A local Flask UI that runs the real scanner behind a browser — drop in a PDF and
+get a plain verdict, the document with every hidden item marked in an embedded
+viewer (all pages, zoomable, downloadable), and the signed receipt.
+
+```bash
+pip install -e '.[web]'     # adds Flask
+make web                    # -> http://127.0.0.1:8000
+```
+
+The optional advisory pass (attack class A8) is **bring-your-own-key**: a settings
+panel takes an Anthropic / OpenAI / Gemini / OpenAI-compatible key (kept in the
+browser, used per-request), or it runs an offline heuristic. It never changes the
+verdict. Nothing is uploaded — the file is inspected on your machine.
 
 ## The corpus
 
