@@ -1,0 +1,23 @@
+corpus/build/
+eval/results.json
+__pycache__/
+*.pyc
+.venv/
+*.png
+!docs/*.png
+receipts/
+keys/
+.ocr_cache/
+.env
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+graphify-out/
+.hallmark/
+# downloaded third-party sample PDFs (re-fetch via test-pdfs/README.md); our own
+# labeled attack samples under test-pdfs/attacks/ are kept
+test-pdfs/clean/*.pdf
+
+# macOS
+.DS_Store

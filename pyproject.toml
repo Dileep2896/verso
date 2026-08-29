@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verso"
+version = "0.4.1"
+description = "A document firewall that inspects a PDF before an AI agent is allowed to read it."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Verso" }]
+dependencies = [
+    "pymupdf>=1.24",
+    "pikepdf>=8",
+    "pypdf>=4",
+    "pypdfium2>=4",
+    "pytesseract>=0.3.10",
+    "reportlab>=4",
+    "pyyaml>=6",
+    "cryptography>=42",
+    "pillow>=10",
+]
+
+[project.optional-dependencies]
+web = ["flask>=3"]
+# The advisory layer needs no SDK -- it calls any provider's REST API over
+# stdlib HTTP with your own key (Anthropic, OpenAI, Gemini, or compatible).
+
+[project.scripts]
+verso = "verso.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["verso*"]
+
+[tool.setuptools.package-data]
+verso = ["py.typed"]

@@ -1,0 +1,17 @@
+# Runtime dependencies. See pyproject.toml for the authoritative list.
+# System requirements: tesseract-ocr (optional, for the OCR render view).
+pymupdf>=1.24
+pikepdf>=8
+pypdf>=4
+pypdfium2>=4
+pytesseract>=0.3.10
+reportlab>=4
+pyyaml>=6
+cryptography>=42
+pillow>=10
+
+# web app (make web)
+flask>=3
+
+# dev / test
+pytest>=8
