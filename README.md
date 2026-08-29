@@ -191,8 +191,48 @@ honest than pretending the taxonomy is complete.
 - **Nutrient DWS** is the extraction and human-review layer on the far side of
   the firewall: extraction runs on documents Verso releases, and flagged findings
   are handed to a reviewer with their coordinates overlaid. See
-  [`integrations/nutrient_dws.py`](integrations/nutrient_dws.py) — an interface
-  with a local fake, so the demo runs offline.
+  [`integrations/nutrient_dws.py`](integrations/nutrient_dws.py).
+
+Both integrations are **real** — they call the sponsors' actual APIs — and fall
+back to a local fake when no credentials are set, so everything demos offline.
+
+### Enabling the sponsor integrations
+
+Both run offline against a local fake with no setup. To drive the **real**
+sponsor services, add credentials:
+
+**Foxit — MCP gateway (primary track).** Foxit's free Developer plan includes
+**500 shared credits/year**, which cover the PDF Services API this uses. Get a
+`client_id` / `client_secret` at the Foxit API developer portal
+(`app.developer-api.foxit.com` → *Start for free*), then:
+
+```bash
+pip install -e '.[foxit]'                     # adds the MCP SDK
+export FOXIT_CLIENT_ID=...  FOXIT_CLIENT_SECRET=...
+export FOXIT_MCP_COMMAND="python -m foxit_pdf_api_mcp_server"   # Foxit's open-source server
+python -m integrations.foxit_mcp_gateway      # point your MCP host (Claude Desktop, ...) here
+```
+
+The agent now sees Foxit's 30+ document tools, each gated on exit code 2.
+Quarantined inputs are refused with a signed receipt in `receipts/foxit-gateway/`
+(check `verso ledger verify receipts/foxit-gateway`); clean inputs pass through to
+the real Foxit tool. Verified end-to-end over a live MCP client↔server round-trip.
+
+**Nutrient DWS — extraction on release (secondary track).** Get a DWS Processor
+API key (`pdf_live_…`) from the DWS dashboard, then:
+
+```bash
+export NUTRIENT_DWS_API_KEY=pdf_live_...
+python -c "from integrations.nutrient_dws import extract_released; print(extract_released('file.pdf'))"
+```
+
+Released (exit 0) documents are sent to `POST https://api.nutrient.io/build`
+(json-content: text, tables, key-value pairs); quarantined documents are handed to
+review instead. Verified end-to-end — a request with a placeholder key reaches the
+API and returns `401`, so a valid key is the only missing piece.
+
+See [`integrations/README.md`](integrations/README.md) for the Claude Desktop
+config and full details.
 
 ## Status
 
