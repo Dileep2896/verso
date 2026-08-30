@@ -102,6 +102,21 @@ main{padding-block:clamp(24px,4vw,44px);display:grid;gap:var(--s5)}
 .verdict .say{margin-top:12px;font-size:16px;color:var(--ink);max-width:70ch}
 .verdict .tag{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--muted);border:1px solid var(--line-2);border-radius:20px;padding:6px 12px;background:color-mix(in srgb,var(--panel) 55%,transparent)}
 @media(max-width:560px){.verdict .tag{margin-left:0}}
+/* foxit actions (post-release) */
+.fx-intro{font-size:15px;color:var(--ink);max-width:70ch;margin-bottom:16px;line-height:1.5}
+.fx-actions{display:flex;flex-wrap:wrap;gap:10px}
+.fx-result{margin-top:18px;padding:14px 16px;border-radius:var(--r2);border:1px solid var(--line-2);background:var(--panel-2);font-size:14px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.fx-result.loading{color:var(--muted)}
+.fx-result.ok{border-color:var(--ok-line);background:var(--ok-wash)}
+.fx-result.err,.fx-result.warn{border-color:var(--danger-line);background:var(--danger-wash)}
+.fx-result.err{color:var(--danger)}
+.fx-result.note{color:var(--muted)}
+.fx-ok{font-weight:600}
+.fx-kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-family:var(--font-mono);font-size:13px;width:100%}
+.kv{display:contents} .kk{color:var(--muted)} .kvv{color:var(--ink);word-break:break-word}
+.fx-pre{font-family:var(--font-mono);font-size:12px;white-space:pre-wrap;word-break:break-word;margin:0}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line-2);border-top-color:var(--accent);border-radius:50%;animation:fxspin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes fxspin{to{transform:rotate(360deg)}}
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--shadow)}
 .card-h{padding:14px var(--s5);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -340,6 +355,7 @@ function blobUrl(b64){ const u=URL.createObjectURL(new Blob([b64ToBytes(b64)],{t
 function clearBlobs(){ blobUrls.forEach(u=>URL.revokeObjectURL(u)); blobUrls.length=0; }
 
 let VW = { pdf:null, findings:[], zoom:1, io:null };
+let CUR = { pdf:null, name:null };   // released document, for the Foxit actions
 async function buildViewer(b64, findings){
   const host = document.getElementById('pdfhost'); if(!host || !window.pdfjsLib) return;
   host.innerHTML = '<div class="pdf-load"><span class="spinner"></span>&nbsp; rendering document…</div>';
@@ -385,6 +401,8 @@ function jumpToFinding(idx){
   ov.classList.remove('flash'); void ov.offsetWidth; ov.classList.add('flash');
 }
 results.addEventListener('click', e=>{
+  const fx = e.target.closest && e.target.closest('[data-fx]');
+  if(fx){ runFoxit(fx.getAttribute('data-fx'), fx); return; }
   const jb = e.target.closest && e.target.closest('.jump');
   if(jb){ jumpToFinding(jb.getAttribute('data-f')); return; }
   const ov = e.target.closest && e.target.closest('.ohl');
@@ -393,6 +411,71 @@ results.addEventListener('click', e=>{
   if(zb){ VW.zoom = Math.min(3, Math.max(0.5, VW.zoom + (zb.dataset.z==='in'?0.25:-0.25)));
     const zl=document.getElementById('zlabel'); if(zl) zl.textContent = Math.abs(VW.zoom-1)<0.01?'Fit':Math.round(VW.zoom*100)+'%'; layoutViewer(); }
 });
+
+// ---- Foxit actions on a released document ------------------------------- //
+function foxitPanel(){
+  return `<div class="card" id="foxitCard"><div class="card-h">
+      <span class="t">Do something with it</span><span class="hint">released · safe to hand off</span></div>
+    <div class="card-b">
+      <div class="fx-intro">Verso released this document, so it’s safe to pass on. Run a real <b>Foxit</b> PDF operation on it — the same gate runs again on the server, so a hidden-payload file could never reach these.</div>
+      <div class="fx-actions">
+        <button class="btn ghost" type="button" data-fx="to_word">Convert to Word</button>
+        <button class="btn ghost" type="button" data-fx="compress">Compress PDF</button>
+        <button class="btn ghost" type="button" data-fx="properties">Document info</button>
+      </div>
+      <div id="fxResult" class="fx-result" hidden></div>
+    </div></div>`;
+}
+
+async function runFoxit(action, btn){
+  if(!CUR.pdf) return;
+  const box = document.getElementById('fxResult');
+  const btns = document.querySelectorAll('#foxitCard [data-fx]');
+  const label = btn ? btn.textContent.trim() : action;
+  btns.forEach(b=>b.disabled=true);
+  box.hidden=false; box.className='fx-result loading';
+  box.innerHTML = `<span><span class="spin"></span>Running <b>${escapeHtml(label)}</b> through Foxit…</span>`;
+  try{
+    const r = await fetch('/api/foxit',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action, pdf:CUR.pdf})});
+    renderFoxitResult(await r.json(), action);
+  }catch(err){
+    box.className='fx-result err'; box.textContent = 'Request failed: '+String(err);
+  }finally{
+    btns.forEach(b=>b.disabled=false);
+  }
+}
+
+function renderFoxitResult(d, action){
+  const box = document.getElementById('fxResult'); if(!box) return; box.hidden=false;
+  if(d.refused){ box.className='fx-result warn';
+    box.innerHTML = `<span><b>Refused.</b> ${escapeHtml(d.reason||'Quarantined — Foxit was not called.')}</span>`; return; }
+  if(d.not_configured){ box.className='fx-result note'; box.textContent = d.message||'Foxit is not configured.'; return; }
+  if(!d.ok){ box.className='fx-result err';
+    box.innerHTML = `<span><b>Foxit error.</b> ${escapeHtml(d.error||'Unknown error')}</span>`; return; }
+  if(d.kind==='data'){ box.className='fx-result ok';
+    box.innerHTML = `<div class="fx-ok">✓ Foxit returned document info</div>` + kvTable(d.data); return; }
+  if(d.kind==='file'){ box.className='fx-result ok';
+    const mime = action==='to_word'
+      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf';
+    const kb = Math.max(1, Math.round((d.size||0)/1024));
+    box.innerHTML = `<div class="fx-ok">✓ Foxit produced <b>${escapeHtml(d.filename||'file')}</b> · ${kb} KB</div>`;
+    const a=document.createElement('a'); a.className='btn primary';
+    a.textContent='Download '+(d.filename||'file')+' ↓'; a.download=d.filename||'foxit-output';
+    a.href=URL.createObjectURL(new Blob([b64ToBytes(d.content)],{type:mime}));
+    box.appendChild(a); return; }
+  box.className='fx-result'; box.textContent = JSON.stringify(d);
+}
+
+function kvTable(obj){
+  if(obj===null || typeof obj!=='object') return `<pre class="fx-pre">${escapeHtml(String(obj))}</pre>`;
+  let rows='';
+  for(const [k,v] of Object.entries(obj)){
+    const val = (v!==null && typeof v==='object') ? JSON.stringify(v) : String(v);
+    rows += `<span class="kk">${escapeHtml(k)}</span><span class="kvv">${escapeHtml(val)}</span>`;
+  }
+  return `<div class="fx-kv">${rows}</div>`;
+}
 
 function render(d, fname){
   if(d.error && !d.decision){ results.innerHTML = verdictCard('e','Couldn’t read this file', escapeHtml(d.error), ''); return; }
@@ -417,6 +500,9 @@ function render(d, fname){
   html += verdictCard(cls, head, say, tag);
 
   if(dec==='error'){ results.innerHTML = html+`</div>`; return; }
+
+  // Released -> offer real Foxit operations (the gate re-runs server-side).
+  if(dec==='clean' && d.pdf){ CUR.pdf = d.pdf; CUR.name = fname; html += foxitPanel(); }
 
   // Verso's own document viewer (renders the original + draws the highlights)
   const annUrl = d.annotated ? blobUrl(d.annotated) : null;

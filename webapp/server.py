@@ -169,6 +169,41 @@ def api_scan():
             pass
 
 
+@app.get("/api/foxit/status")
+def api_foxit_status():
+    """Whether the in-app Foxit actions are enabled (real credentials present)."""
+    try:
+        from integrations.foxit_app import foxit_configured
+        return jsonify({"configured": foxit_configured()})
+    except Exception:
+        return jsonify({"configured": False})
+
+
+@app.post("/api/foxit")
+def api_foxit():
+    """Run a Foxit PDF operation on a RELEASED document.
+
+    The gate is enforced here again server-side: the bytes are re-scanned and a
+    quarantined document is refused before any Foxit tool runs -- the client
+    cannot bypass it by calling this endpoint directly.
+    """
+    src = request.json or {}
+    action = (src.get("action") or "").strip()
+    pdf_b64 = src.get("pdf") or ""
+    if not pdf_b64:
+        return jsonify({"error": "no pdf provided"}), 400
+    try:
+        raw = base64.b64decode(pdf_b64)
+    except Exception:
+        return jsonify({"error": "bad pdf encoding"}), 400
+    if len(raw) > MAX_BYTES:
+        return jsonify({"error": "file too large (25 MB max)"}), 413
+    if not raw.startswith(b"%PDF-"):
+        return jsonify({"error": "not a PDF"}), 400
+    from integrations.foxit_app import run_foxit_action
+    return jsonify(run_foxit_action(raw, action))
+
+
 def _sample_rel(sample_id: str) -> str | None:
     import json
     labels = BUILD / "labels.json"

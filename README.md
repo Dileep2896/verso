@@ -148,6 +148,16 @@ pip install -e '.[web]'     # adds Flask
 make web                    # -> http://127.0.0.1:8000
 ```
 
+**Process released documents with Foxit — in the app.** When a document is
+released (exit 0), the UI offers real Foxit PDF operations: *Convert to Word*,
+*Compress*, *Document info*. Clicking one **re-runs the gate on the server** and
+calls Foxit only if the document is still clean — a quarantined file can never
+reach a Foxit tool. Export `FOXIT_CLIENT_ID` / `FOXIT_CLIENT_SECRET` before
+`make web` to enable them; the app is the MCP host itself, so **no Claude Desktop
+or external MCP host is required**. Without keys the buttons explain how to turn
+them on. (The standalone [MCP gateway](integrations/foxit_mcp_gateway.py) still
+exists for protecting *other* agents; it is no longer needed just to see the demo.)
+
 The optional advisory pass (attack class A8) is **bring-your-own-key**: a settings
 panel takes an Anthropic / OpenAI / Gemini / OpenAI-compatible key (kept in the
 browser, used per-request), or it runs an offline heuristic. It never changes the
