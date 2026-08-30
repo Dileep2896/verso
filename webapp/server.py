@@ -200,8 +200,15 @@ def api_foxit():
         return jsonify({"error": "file too large (25 MB max)"}), 413
     if not raw.startswith(b"%PDF-"):
         return jsonify({"error": "not a PDF"}), 400
-    from integrations.foxit_app import run_foxit_action
-    return jsonify(run_foxit_action(raw, action))
+    # Never let an exception escape as an HTML 500 -- this endpoint's contract is
+    # JSON, and the browser does r.json() on the result.
+    try:
+        from integrations.foxit_app import run_foxit_action
+        return jsonify(run_foxit_action(raw, action))
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # noqa: BLE001 -- deliberately broad; return JSON
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"[:400]}), 200
 
 
 def _sample_rel(sample_id: str) -> str | None:

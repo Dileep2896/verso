@@ -603,15 +603,18 @@ function foxitPanel(state){
 async function runFoxit(action, btn){
   if(!CUR.pdf) return;
   const box = document.getElementById('fxResult');
-  const btns = document.querySelectorAll('#foxitCard [data-fx]');
+  const btns = document.querySelectorAll('.fxcard [data-fx]');
   const label = btn ? btn.textContent.trim() : action;
   btns.forEach(b=>b.disabled=true);
   box.hidden=false; box.className='fx-result loading';
-  box.innerHTML = `<span><span class="spin"></span>Running <b>${escapeHtml(label)}</b> through Foxit…</span>`;
+  box.innerHTML = `<span><span class="spin"></span>Running <b>${escapeHtml(label)}</b> through Foxit… <span class="muted">(a real conversion can take a few seconds)</span></span>`;
   try{
     const r = await fetch('/api/foxit',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action, pdf:CUR.pdf})});
-    renderFoxitResult(await r.json(), action);
+    const txt = await r.text();
+    let d; try{ d = JSON.parse(txt); }
+    catch(_){ d = {ok:false, error:`Server returned ${r.status} (not JSON) — check the terminal running the app for details.`}; }
+    renderFoxitResult(d, action);
   }catch(err){
     box.className='fx-result err'; box.textContent = 'Request failed: '+String(err);
   }finally{

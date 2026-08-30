@@ -163,5 +163,7 @@ def run_foxit_action(pdf_bytes: bytes, action: str) -> dict:
         out = anyio.run(_run, build_backend(), pdf_b64, action)
         out["ok"] = True
         return out
-    except Exception as e:  # surface Foxit/auth errors to the UI, don't crash
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # incl. anyio BaseExceptionGroup / timeouts
         return {"ok": False, "error": _readable_error(e)[:400]}
