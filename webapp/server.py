@@ -215,6 +215,32 @@ def api_foxit():
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"[:400]}), 200
 
 
+@app.post("/api/nutrient")
+def api_nutrient():
+    """Extract a RELEASED document with Nutrient DWS. Gate is re-enforced here;
+    a quarantined document is handed to review instead of extracted."""
+    src = request.json or {}
+    pdf_b64 = src.get("pdf") or ""
+    if not pdf_b64:
+        return jsonify({"error": "no pdf provided"}), 400
+    try:
+        raw = base64.b64decode(pdf_b64)
+    except Exception:
+        return jsonify({"error": "bad pdf encoding"}), 400
+    if len(raw) > MAX_BYTES:
+        return jsonify({"error": "file too large (25 MB max)"}), 413
+    if not raw.startswith(b"%PDF-"):
+        return jsonify({"error": "not a PDF"}), 400
+    key = (src.get("dws_api_key") or "").strip() or None
+    try:
+        from integrations.nutrient_app import run_nutrient
+        return jsonify(run_nutrient(raw, key))
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # noqa: BLE001 -- deliberately broad; return JSON
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"[:400]}), 200
+
+
 def _sample_rel(sample_id: str) -> str | None:
     import json
     labels = BUILD / "labels.json"

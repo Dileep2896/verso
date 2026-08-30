@@ -124,6 +124,8 @@ main{padding-block:clamp(24px,4vw,44px);display:grid;gap:var(--s5)}
 .fx-result.note{color:var(--muted)}
 .fx-ok{font-weight:600}
 .fx-kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-family:var(--font-mono);font-size:13px;width:100%}
+.conf{font-family:var(--font-mono);font-size:10.5px;color:var(--ok);margin-left:6px}
+.nt-text{font-size:13px;color:var(--muted);line-height:1.55;border-left:2px solid var(--line-2);padding-left:12px;overflow-wrap:anywhere}
 .kv{display:contents} .kk{color:var(--muted)} .kvv{color:var(--ink);word-break:break-word}
 .fx-pre{font-family:var(--font-mono);font-size:12px;white-space:pre-wrap;word-break:break-word;margin:0}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line-2);border-top-color:var(--accent);border-radius:50%;animation:fxspin .7s linear infinite;vertical-align:-2px;margin-right:6px}
@@ -401,12 +403,14 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
     <div class="modal-h"><div><h3>Settings</h3><div class="sub">Bring-your-own keys — saved in this browser, never stored on the server.</div></div>
       <button class="xbtn" id="settingsClose" type="button" aria-label="Close">✕</button></div>
     <div class="modal-b">
-      <div class="modal-sec-h">Foxit PDF tools</div>
+      <div class="modal-sec-h">Sponsor keys</div>
       <div class="field"><div class="flabel">Foxit Client ID</div>
         <input id="foxitId" type="text" placeholder="from developer-api.foxit.com → Applications → Manage" autocomplete="off"></div>
       <div class="field"><div class="flabel">Foxit Client Secret</div>
         <input id="foxitSecret" type="password" placeholder="client secret" autocomplete="off"></div>
-      <div class="hint">Enables <b>Convert / Compress / Document info</b> on released documents. Saved in <b>this browser</b> and sent only when you click a tool — used for that one call, never stored on the server. Get them at <b>developer-api.foxit.com</b> → Applications → Manage.</div>
+      <div class="field"><div class="flabel">Nutrient DWS API key <span class="note">· optional</span></div>
+        <input id="dwsKey" type="password" placeholder="pdf_live_…  (from the DWS dashboard)" autocomplete="off"></div>
+      <div class="hint"><b>Foxit</b> enables Convert / Compress / Document info; <b>Nutrient DWS</b> enables live extraction (without it, extraction shows deterministic sample output). Saved in <b>this browser</b>, sent only for the call you trigger — never stored on the server.</div>
       <div class="modal-div"></div>
       <div class="modal-sec-h">AI advisory <span class="note">· optional</span></div>
       <div class="field"><div class="flabel">Provider</div>
@@ -488,6 +492,7 @@ const ICON = {
   chevron:'<path d="m6 9 6 6 6-6"/>',
   info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
   archive:'<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+  database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
 };
 function icon(name, cls){ return `<svg class="ic${cls?' '+cls:''}" viewBox="0 0 24 24" aria-hidden="true">${ICON[name]||''}</svg>`; }
 
@@ -569,6 +574,8 @@ function jumpToFinding(idx){
 results.addEventListener('click', e=>{
   const fx = e.target.closest && e.target.closest('[data-fx]');
   if(fx){ runFoxit(fx.getAttribute('data-fx'), fx); return; }
+  const nt = e.target.closest && e.target.closest('#ntRun');
+  if(nt){ runNutrient(nt); return; }
   const fe = e.target.closest && e.target.closest('[data-fexp]');
   if(fe){ const row=fe.closest('.frow'); openRow(row, !(row && row.classList.contains('open'))); return; }
   const jb = e.target.closest && e.target.closest('.jump');
@@ -609,6 +616,55 @@ function foxitPanel(state){
       </div>
       <div id="fxResult" class="fx-result" hidden></div>
     </div></div>`;
+}
+
+// ---- Nutrient DWS: extract released docs, hand quarantined ones to review ----
+function nutrientPanel(state){
+  if(state==='review'){
+    return `<div class="card sec fxcard" id="sec-nutrient"><div class="card-h">
+        <span class="t">Nutrient DWS</span><span class="fx-badge locked">${icon('shieldAlert')} sent to review</span></div>
+      <div class="card-b">
+        <div class="fx-intro">On the far side of the firewall, <b>Nutrient DWS</b> extracts structured data from released documents. This one was <b>quarantined</b>, so it is <b>not</b> auto-extracted — its findings go to the DWS Viewer for a person to adjudicate.</div>
+        <div class="fx-locknote">${icon('shieldCheck')} A guess isn't acceptable on a hostile document — a human reviews it instead.</div>
+      </div></div>`;
+  }
+  return `<div class="card sec fxcard" id="sec-nutrient"><div class="card-h">
+      <span class="t">Nutrient DWS</span><span class="fx-badge ok">${icon('shieldCheck')} released · ready to extract</span></div>
+    <div class="card-b">
+      <div class="fx-intro">Verso released this document, so it’s safe to extract. <b>Nutrient DWS</b> pulls structured data — text, tables, and key/value pairs — from it.</div>
+      <div class="fx-actions"><button class="btn ghost" type="button" id="ntRun">${icon('list')}Extract with Nutrient DWS</button></div>
+      <div id="ntResult" class="fx-result" hidden></div>
+    </div></div>`;
+}
+
+async function runNutrient(btn){
+  if(!CUR.pdf) return;
+  const box=document.getElementById('ntResult');
+  btn.disabled=true;
+  box.hidden=false; box.className='fx-result loading';
+  box.innerHTML=`<span><span class="spin"></span>Extracting with Nutrient DWS…</span>`;
+  try{
+    const r=await fetch('/api/nutrient',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pdf:CUR.pdf, dws_api_key:dwsKey()})});
+    const txt=await r.text(); let d; try{ d=JSON.parse(txt); }
+    catch(_){ d={ok:false, error:`Server returned ${r.status} (not JSON) — check the terminal.`}; }
+    renderNutrient(d);
+  }catch(err){ box.className='fx-result err'; box.textContent='Request failed: '+String(err); }
+  finally{ btn.disabled=false; }
+}
+
+function renderNutrient(d){
+  const box=document.getElementById('ntResult'); if(!box) return; box.hidden=false;
+  if(d.review){ box.className='fx-result warn';
+    box.innerHTML=`<span><b>Sent to review.</b> ${d.count} finding(s) handed to the DWS Viewer — not extracted.</span>`; return; }
+  if(!d.ok){ box.className='fx-result err';
+    box.innerHTML=`<span><b>Nutrient error.</b> ${escapeHtml(d.error||'Unknown error')}</span>`; return; }
+  const data=d.data||{};
+  const rows=(data.fields||[]).map(f=>`<span class="kk">${escapeHtml(String(f.name||''))}</span><span class="kvv">${escapeHtml(String(f.value||''))}${f.confidence!=null?` <span class="conf">${Math.round(f.confidence*100)}%</span>`:''}</span>`).join('');
+  box.className='fx-result ok';
+  box.innerHTML=`<div class="fx-ok">✓ Extracted · ${escapeHtml(data.engine||'Nutrient DWS')}${data.live?'':' · sample output — add a DWS key in Settings for live extraction'}</div>`
+    + (rows?`<div class="fx-kv">${rows}</div>`:'')
+    + (data.text_sample?`<div class="nt-text">“${escapeHtml(data.text_sample)}…”</div>`:'');
 }
 
 async function runFoxit(action, btn){
@@ -750,7 +806,7 @@ function render(d, fname){
   if(dec==='error'){ results.innerHTML = html+`</div>`; renderRail(d, fname); return; }
 
   // Released -> live Foxit operations (the gate re-runs server-side).
-  if(dec==='clean' && d.pdf){ CUR.pdf = d.pdf; CUR.name = fname; html += foxitPanel('clean'); }
+  if(dec==='clean' && d.pdf){ CUR.pdf = d.pdf; CUR.name = fname; html += foxitPanel('clean') + nutrientPanel('released'); }
 
   // Document + findings. When there's evidence to line up against the page
   // (quarantined) show them side by side; otherwise the document on its own.
@@ -775,7 +831,7 @@ function render(d, fname){
       </div>
     </div>
     <div class="splithint">Click a finding to <b>flash it on the page</b> · click a highlight to open its finding.</div>`;
-    html += foxitPanel('blocked');
+    html += foxitPanel('blocked') + nutrientPanel('review');
   } else {
     if(d.pdf){
       html += `<div class="card sec" id="sec-doc"><div class="card-h"><span class="t">Your document</span>${tools}</div>
@@ -840,7 +896,8 @@ function renderRail(d, fname){
   $('#railStatusWrap').hidden = (dec!=='quarantined' && dec!=='clean');
 
   const cand = [['sec-verdict','layout','Overview'],['sec-findings','scan','Findings'],
-                ['sec-actions','wand','Foxit tools'],['sec-doc','file','Document'],['sec-details','list','Details']];
+                ['sec-actions','wand','Foxit tools'],['sec-nutrient','database','Nutrient DWS'],
+                ['sec-doc','file','Document'],['sec-details','list','Details']];
   railNav.innerHTML = cand.filter(([id])=>document.getElementById(id))
     .map(([id,ic,lbl])=>`<a class="railitem" href="#${id}" data-nav="${id}">${icon(ic)}${lbl}</a>`).join('');
   $('#railNavWrap').hidden = !railNav.innerHTML;
@@ -879,17 +936,18 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 // ---- settings (persisted) + modal ----
 const provider=$('#provider'), model=$('#model'), apiKey=$('#apiKey'), baseUrl=$('#baseUrl'),
       keyWrap=$('#keyWrap'), modelRow=$('#modelRow'), baseWrap=$('#baseWrap');
-const foxitId=$('#foxitId'), foxitSecret=$('#foxitSecret');
+const foxitId=$('#foxitId'), foxitSecret=$('#foxitSecret'), dwsInput=$('#dwsKey');
 const REAL=new Set(['anthropic','openai','gemini','compatible']); const LS_KEY='verso-settings';
 function syncProvider(){ const real=REAL.has(provider.value);
   keyWrap.classList.toggle('hidden',!real); modelRow.classList.toggle('hidden',!real); baseWrap.classList.toggle('hidden',provider.value!=='compatible'); }
 function loadSettings(){ let s={}; try{ s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; }catch(e){}
   provider.value=s.provider||'off'; model.value=s.model||''; baseUrl.value=s.base_url||''; apiKey.value=s.api_key||'';
-  foxitId.value=s.foxit_id||''; foxitSecret.value=s.foxit_secret||''; syncProvider(); }
+  foxitId.value=s.foxit_id||''; foxitSecret.value=s.foxit_secret||''; dwsInput.value=s.dws_key||''; syncProvider(); }
 function saveSettings(){ const s={provider:provider.value,model:model.value.trim(),base_url:baseUrl.value.trim(),api_key:apiKey.value,
-    foxit_id:foxitId.value.trim(),foxit_secret:foxitSecret.value};
+    foxit_id:foxitId.value.trim(),foxit_secret:foxitSecret.value,dws_key:dwsInput.value.trim()};
   try{ localStorage.setItem(LS_KEY,JSON.stringify(s)); }catch(e){} }
 function foxitCreds(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; return {id:(s.foxit_id||'').trim(), secret:s.foxit_secret||''}; }catch(e){ return {id:'',secret:''}; } }
+function dwsKey(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; return (s.dws_key||'').trim(); }catch(e){ return ''; } }
 provider.addEventListener('change', syncProvider);
 function advParams(fd){ if(provider.value==='off') return; fd.append('advisory','true');
   if(REAL.has(provider.value)){ fd.append('provider', provider.value==='compatible'?'openai':provider.value); fd.append('api_key', apiKey.value);
@@ -903,7 +961,7 @@ $('#settingsClose').addEventListener('click', closeSettings);
 ov.addEventListener('click', e=>{ if(e.target===ov) closeSettings(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'&&!ov.hidden) closeSettings(); });
 $('#saveBtn').addEventListener('click', ()=>{ saveSettings(); const m=$('#savedMsg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); setTimeout(closeSettings,380); });
-$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value=''; foxitId.value=''; foxitSecret.value=''; saveSettings(); });
+$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value=''; foxitId.value=''; foxitSecret.value=''; dwsInput.value=''; saveSettings(); });
 loadSettings();
 </script>
 </body>
