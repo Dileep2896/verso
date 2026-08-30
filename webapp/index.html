@@ -275,6 +275,11 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
 .rail-spacer{flex:1 1 auto}
 .rail-bottom{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:var(--s4)}
 .rail-foot{font-family:var(--font-mono);font-size:10px;color:var(--faint);padding:8px 11px 0;line-height:1.5}
+.rail-credit{padding:12px 11px 6px;display:flex;flex-direction:column;gap:6px}
+.rc-lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.rc-item{font-size:12.5px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.rc-item::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex:0 0 5px;box-shadow:0 0 8px -1px var(--accent)}
+.rc-item:hover{color:var(--accent);text-decoration:none}
 .main{min-width:0;padding:var(--s6) var(--s6) var(--s7)}
 .main-in{max-width:1200px;margin:0 auto;display:grid;gap:var(--s5)}
 .sec{scroll-margin-top:18px}
@@ -298,7 +303,7 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
 @media(max-width:860px){
   .app{grid-template-columns:1fr}
   .rail{position:sticky;top:0;z-index:40;height:auto;flex-direction:row;align-items:center;gap:12px;padding:11px var(--s4);border-right:0;border-bottom:1px solid var(--line)}
-  .rail .rlbl,.rail .railstatus,.rail .railnav,.rail .nav-sec{display:none}
+  .rail .rlbl,.rail .railstatus,.rail .railnav,.rail .nav-sec,.rail .rail-credit{display:none}
   .rail-spacer{display:none}
   .rail-bottom{flex-direction:row;border-top:0;padding-top:0;margin-left:auto;gap:4px}
   .rail-foot{display:none}
@@ -344,6 +349,11 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
     <div class="rail-bottom">
       <button class="railitem" id="settingsBtn" type="button" aria-haspopup="dialog"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
       <a class="railitem" href="https://github.com/Dileep2896/verso" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg> GitHub</a>
+      <div class="rail-credit">
+        <div class="rc-lbl">Powered by</div>
+        <a class="rc-item" href="https://developer-api.foxit.com" target="_blank" rel="noopener">Foxit PDF Services API</a>
+        <a class="rc-item" href="https://www.nutrient.io" target="_blank" rel="noopener">Nutrient DWS</a>
+      </div>
       <div class="rail-foot">Apache-2.0 · runs locally · nothing is uploaded</div>
     </div>
   </aside>
