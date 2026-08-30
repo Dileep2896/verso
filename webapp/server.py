@@ -241,6 +241,81 @@ def api_nutrient():
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"[:400]}), 200
 
 
+def _pdf_from_request():
+    """Decode + validate a base64 PDF from a JSON body. Returns (bytes, error_response)."""
+    src = request.json or {}
+    pdf_b64 = src.get("pdf") or ""
+    if not pdf_b64:
+        return None, (jsonify({"error": "no pdf provided"}), 400)
+    try:
+        raw = base64.b64decode(pdf_b64)
+    except Exception:
+        return None, (jsonify({"error": "bad pdf encoding"}), 400)
+    if len(raw) > MAX_BYTES:
+        return None, (jsonify({"error": "file too large (25 MB max)"}), 413)
+    if not raw.startswith(b"%PDF-"):
+        return None, (jsonify({"error": "not a PDF"}), 400)
+    return raw, None
+
+
+@app.post("/api/sanitize")
+def api_sanitize():
+    """`verso sanitize`: strip metadata attacks and return a cleaned copy, or
+    refuse if the document has in-content attacks that cleaning can't remove."""
+    raw, err = _pdf_from_request()
+    if err:
+        return err
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+        f.write(raw)
+        tmp = Path(f.name)
+    try:
+        from verso.sanitize import sanitize
+        res = sanitize(tmp)
+        out = {"safe": bool(res.safe), "removed": res.removed, "remaining": res.remaining}
+        if res.safe and res.cleaned_bytes:
+            out["content"] = base64.b64encode(res.cleaned_bytes).decode("ascii")
+            out["filename"] = "cleaned.pdf"
+        return jsonify(out)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # noqa: BLE001
+        return jsonify({"error": f"{type(e).__name__}: {e}"[:400]}), 200
+    finally:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+
+
+@app.post("/api/overlay")
+def api_overlay():
+    """`verso scan --overlay`: a rasterized page with the findings drawn on it."""
+    raw, err = _pdf_from_request()
+    if err:
+        return err
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+        f.write(raw)
+        tmp = Path(f.name)
+    png = tmp.with_suffix(".png")
+    try:
+        result = scan(tmp, with_render=True, with_advisory=False)
+        from verso.overlay import render_overlay
+        render_overlay(result, str(png))
+        data = png.read_bytes()
+        return jsonify({"content": base64.b64encode(data).decode("ascii"),
+                        "filename": "overlay.png"})
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # noqa: BLE001
+        return jsonify({"error": f"{type(e).__name__}: {e}"[:400]}), 200
+    finally:
+        for p in (tmp, png):
+            try:
+                p.unlink()
+            except OSError:
+                pass
+
+
 def _sample_rel(sample_id: str) -> str | None:
     import json
     labels = BUILD / "labels.json"
