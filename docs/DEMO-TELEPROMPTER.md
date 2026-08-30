@@ -4,8 +4,9 @@ Read the **bold lines** out loud. The `[bracketed]` lines are what to do on scre
 don't read them. Aim for ~3 minutes; slower is better than faster.
 
 **Before you hit record:** Focus/Do-Not-Disturb on · one clean full-screen browser
-tab on http://127.0.0.1:8000 · both files on the Desktop · Foxit key in Settings ·
-do one silent dry run first.
+tab on http://127.0.0.1:8000 · three files on the Desktop (`demo-hidden-issues.pdf`,
+`somatosensory-article.pdf`, `irs-w9-form.pdf`) · Foxit key in Settings · do one
+silent dry run first.
 
 ---
 
@@ -42,7 +43,25 @@ do one silent dry run first.
 > **"And every refusal is a signed, chained receipt — Ed25519. Not a log line;
 > tamper-evident proof that Verso declined, and why."**
 
-### 1:20 — The gate on the sponsors
+### 1:15 — Fix & export (Verso doesn't just detect — it fixes)
+
+`[Click "Fix & export" in the rail. Point at the row of buttons.]`
+
+> **"And it's not just a detector. Everything the command-line tool does is one
+> click here — export the findings, the signed receipt, a page overlay. And it can
+> fix documents: for metadata attacks like embedded JavaScript, 'Sanitize' strips
+> them and hands you a clean copy."**
+
+`[Optional but strong — the "we fix it" arc. "+ Scan another", drag in`
+`irs-w9-form.pdf` `— a real IRS form that hides JavaScript. It's quarantined. Click`
+`"Fix & export" → "Sanitize" → JavaScript stripped → "Download cleaned.pdf". Then`
+`"+ Scan another" and drag the cleaned file back in.]`
+
+> **"A real IRS form — quarantined on embedded JavaScript. One click to sanitize,
+> download the cleaned copy, run it back through… released. It caught it, and
+> fixed it."**
+
+### 1:40 — The gate on the sponsors
 
 `[Scroll down to the "Foxit PDF tools" and "Nutrient DWS" panels — both locked.]`
 
@@ -50,7 +69,7 @@ do one silent dry run first.
 > Nutrient's extraction — sent to human review instead. The hostile file never
 > reaches either service. That is the firewall."**
 
-### 1:45 — Release a clean document
+### 2:05 — Release a clean document
 
 `[Click "+ Scan another" in the rail. Drag `somatosensory-article.pdf` onto the drop zone.]`
 
@@ -62,7 +81,7 @@ then "Extract with Nutrient DWS".]`
 > **"Foxit's tools go live — here's Document info calling Foxit's real API. And
 > Nutrient DWS extracts structured fields, with confidence scores."**
 
-### 2:30 — The honest close
+### 2:50 — The honest close
 
 `[Scroll back up to the verdict, or leave the extraction on screen.]`
 
@@ -80,9 +99,10 @@ then "Extract with Nutrient DWS".]`
 
 1. Hostile doc → **quarantined, 4 hidden** → split view → **Show on page**.
 2. **Details** → signed receipt.
-3. Both sponsors **locked** (Foxit blocked / Nutrient review).
-4. **Scan another** → clean doc → **released** → Foxit + Nutrient **live**.
-5. Close: deterministic · recall 1.0 · 0 false positives · name A8 (what it can't do).
+3. **Fix & export** → the CLI in the browser; **Sanitize** the W-9 (embedded JS) → **Download cleaned.pdf** → re-scan → **released**.
+4. Both sponsors **locked** (Foxit blocked / Nutrient review).
+5. **Scan another** → clean doc → **released** → Foxit + Nutrient **live**.
+6. Close: deterministic · recall 1.0 · 0 false positives · name A8 (what it can't do).
 
 ## Two lines to have ready for questions
 
