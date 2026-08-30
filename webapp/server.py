@@ -16,7 +16,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, Response, jsonify, request, send_from_directory
 
 from verso import __version__
 from verso.annotate import annotate_bytes
@@ -104,6 +104,23 @@ def _llm_config_from_request() -> dict | None:
 @app.get("/")
 def index():
     return send_from_directory(HERE, "index.html")
+
+
+# The Verso mark ("The Fold"): a page with a turned-up cyan verso corner.
+_FAVICON = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">'
+    '<rect width="40" height="40" rx="9" fill="#2DD4E8"/>'
+    '<g fill="none" stroke="#04222A" stroke-width="2.6" stroke-linejoin="round" '
+    'stroke-linecap="round">'
+    '<path d="M11 8h13l6 6v16.5A1.5 1.5 0 0 1 28.5 32H12.5A1.5 1.5 0 0 1 11 30.5'
+    'V9.5A1.5 1.5 0 0 1 11 8Z"/><path d="M14 22h11M14 26h8"/></g>'
+    '<path d="M24 8v6h6z" fill="#04222A"/></svg>'
+)
+
+
+@app.get("/favicon.svg")
+def favicon():
+    return Response(_FAVICON, mimetype="image/svg+xml")
 
 
 @app.get("/api/samples")

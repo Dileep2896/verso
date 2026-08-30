@@ -1,3 +1,5 @@
+<img src="docs/logo.svg" width="60" alt="Verso">
+
 # Verso
 
 **Your agent should not read that either.**
