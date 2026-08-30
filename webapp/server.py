@@ -202,9 +202,13 @@ def api_foxit():
         return jsonify({"error": "not a PDF"}), 400
     # Never let an exception escape as an HTML 500 -- this endpoint's contract is
     # JSON, and the browser does r.json() on the result.
+    # Optional bring-your-own-key creds from the UI Settings; fall back to env.
+    # Sent only for this call, used for this call, never stored server-side.
+    cid = (src.get("foxit_client_id") or "").strip() or None
+    csec = (src.get("foxit_client_secret") or "").strip() or None
     try:
         from integrations.foxit_app import run_foxit_action
-        return jsonify(run_foxit_action(raw, action))
+        return jsonify(run_foxit_action(raw, action, cid, csec))
     except (KeyboardInterrupt, SystemExit):
         raise
     except BaseException as e:  # noqa: BLE001 -- deliberately broad; return JSON

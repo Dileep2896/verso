@@ -160,11 +160,16 @@ class RealFoxitBackend:
         return (await self._session.call_tool(name, arguments)).content
 
 
-def build_backend():
-    """Real Foxit backend if credentials + launch command are configured, else fake."""
-    # Accept either our own short names or Foxit's own FOXIT_CLOUD_API_* names.
-    client_id = os.environ.get("FOXIT_CLIENT_ID") or os.environ.get("FOXIT_CLOUD_API_CLIENT_ID")
-    client_secret = (os.environ.get("FOXIT_CLIENT_SECRET")
+def build_backend(client_id=None, client_secret=None, host=None):
+    """Real Foxit backend if credentials + launch command are configured, else fake.
+
+    Credentials may be passed in (e.g. per-request from the web UI's Settings);
+    they fall back to the environment when not provided.
+    """
+    # Accept passed-in creds, then our own short names, then Foxit's FOXIT_CLOUD_API_*.
+    client_id = (client_id or os.environ.get("FOXIT_CLIENT_ID")
+                 or os.environ.get("FOXIT_CLOUD_API_CLIENT_ID"))
+    client_secret = (client_secret or os.environ.get("FOXIT_CLIENT_SECRET")
                      or os.environ.get("FOXIT_CLOUD_API_CLIENT_SECRET"))
     command = os.environ.get("FOXIT_MCP_COMMAND")
     if client_id and client_secret and command:
@@ -177,7 +182,7 @@ def build_backend():
             argv[0] = sys.executable
         # Foxit's own server reads FOXIT_CLOUD_API_* env vars, not our short names,
         # so translate here. Host defaults to the NA fusion endpoint but is overridable.
-        host = (os.environ.get("FOXIT_CLOUD_API_HOST")
+        host = (host or os.environ.get("FOXIT_CLOUD_API_HOST")
                 or "https://na1.fusion.foxit.com/pdf-services")
         return RealFoxitBackend(
             command=argv,

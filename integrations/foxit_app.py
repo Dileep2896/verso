@@ -41,15 +41,15 @@ ACTIONS = {
 
 
 def _ensure_command() -> None:
-    """The app only asks the user for id/secret; we know the launch command."""
-    if os.environ.get("FOXIT_CLIENT_ID") and os.environ.get("FOXIT_CLIENT_SECRET"):
-        os.environ.setdefault("FOXIT_MCP_COMMAND", _DEFAULT_COMMAND)
+    """We always know the launch command; only the credentials vary (env or UI)."""
+    os.environ.setdefault("FOXIT_MCP_COMMAND", _DEFAULT_COMMAND)
 
 
-def foxit_configured() -> bool:
-    """True when real Foxit credentials are present (not the local fake)."""
+def foxit_configured(client_id: str | None = None, client_secret: str | None = None) -> bool:
+    """True when real Foxit credentials are available (from the request or env)."""
     _ensure_command()
-    return not isinstance(build_backend(), LocalFakeBackend)
+    return not isinstance(build_backend(client_id or None, client_secret or None),
+                          LocalFakeBackend)
 
 
 def _readable_error(e: BaseException) -> str:
@@ -116,12 +116,15 @@ async def _run(backend, pdf_b64: str, action: str) -> dict:
         }
 
 
-def run_foxit_action(pdf_bytes: bytes, action: str) -> dict:
+def run_foxit_action(pdf_bytes: bytes, action: str,
+                     client_id: str | None = None,
+                     client_secret: str | None = None) -> dict:
     """Gate the document, then run a Foxit action on it if it is released.
 
-    Returns one of:
+    Credentials come from the request (the web UI's Settings) or, failing that,
+    the environment. Returns one of:
       {"refused": True, ...}         -- Verso quarantined it; Foxit not called
-      {"not_configured": True, ...}  -- no Foxit credentials set
+      {"not_configured": True, ...}  -- no Foxit credentials available
       {"ok": True, "kind": "file"|"data", ...}
       {"ok": False, "error": ...}    -- Foxit call failed (e.g. bad credentials)
     """
@@ -150,17 +153,19 @@ def run_foxit_action(pdf_bytes: bytes, action: str) -> dict:
     if result.exit_code != 0:
         return {"ok": False, "error": "Document could not be scanned."}
 
-    if not foxit_configured():
+    _ensure_command()
+    backend = build_backend(client_id or None, client_secret or None)
+    if isinstance(backend, LocalFakeBackend):
         return {
             "not_configured": True,
-            "message": ("Foxit credentials are not set. Export FOXIT_CLIENT_ID and "
-                        "FOXIT_CLIENT_SECRET, then restart the app to enable these "
-                        "actions."),
+            "message": ("Foxit credentials aren't set. Add your Client ID and Secret "
+                        "in Settings (the gear in the sidebar) — or export "
+                        "FOXIT_CLIENT_ID / FOXIT_CLIENT_SECRET and restart the app."),
         }
 
     pdf_b64 = base64.b64encode(pdf_bytes).decode("ascii")
     try:
-        out = anyio.run(_run, build_backend(), pdf_b64, action)
+        out = anyio.run(_run, backend, pdf_b64, action)
         out["ok"] = True
         return out
     except (KeyboardInterrupt, SystemExit):

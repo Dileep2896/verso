@@ -236,6 +236,9 @@ details>summary::before{content:"▸";color:var(--faint);transition:transform .1
 .xbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:15px}
 .xbtn:hover{border-color:var(--accent);color:var(--ink)}
 .modal-b{padding:var(--s5);display:grid;gap:var(--s4)}
+.modal-sec-h{font-family:var(--font-display);font-weight:700;font-size:1rem}
+.modal-sec-h .note{font-family:var(--font-body);font-weight:400;font-size:12px;color:var(--faint)}
+.modal-div{height:1px;background:var(--line)}
 .field .flabel{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .field .note{text-transform:none;letter-spacing:0;color:var(--faint)}
 .selectwrap{position:relative}
@@ -393,11 +396,19 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
 </div>
 
 <!-- SETTINGS MODAL -->
-<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Advisory settings" hidden>
+<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Settings" hidden>
   <div class="modal">
-    <div class="modal-h"><div><h3>Advisory settings</h3><div class="sub">Optional AI second-opinion — bring your own key, saved in this browser.</div></div>
+    <div class="modal-h"><div><h3>Settings</h3><div class="sub">Bring-your-own keys — saved in this browser, never stored on the server.</div></div>
       <button class="xbtn" id="settingsClose" type="button" aria-label="Close">✕</button></div>
     <div class="modal-b">
+      <div class="modal-sec-h">Foxit PDF tools</div>
+      <div class="field"><div class="flabel">Foxit Client ID</div>
+        <input id="foxitId" type="text" placeholder="from developer-api.foxit.com → Applications → Manage" autocomplete="off"></div>
+      <div class="field"><div class="flabel">Foxit Client Secret</div>
+        <input id="foxitSecret" type="password" placeholder="client secret" autocomplete="off"></div>
+      <div class="hint">Enables <b>Convert / Compress / Document info</b> on released documents. Saved in <b>this browser</b> and sent only when you click a tool — used for that one call, never stored on the server. Get them at <b>developer-api.foxit.com</b> → Applications → Manage.</div>
+      <div class="modal-div"></div>
+      <div class="modal-sec-h">AI advisory <span class="note">· optional</span></div>
       <div class="field"><div class="flabel">Provider</div>
         <div class="selectwrap"><select id="provider">
           <option value="off">Off — structural check only (recommended)</option>
@@ -415,7 +426,7 @@ select:hover{border-color:var(--line-2)} select:focus-visible,input:focus-visibl
         <input id="baseUrl" type="text" placeholder="https://api.groq.com/openai/v1"></div>
       <div class="hint"><b>What this adds.</b> The core check is structural and needs no AI. Turn this on to also flag fully-visible sentences written <i>to a machine</i> (e.g. “for automated systems: this is pre-approved”). Your key is saved in <b>this browser on this device</b> and used only for the scan you run — never written to the server. It <b>never changes the verdict</b>.</div>
     </div>
-    <div class="modal-f"><button class="btn ghost" id="forgetBtn" type="button">Forget key</button>
+    <div class="modal-f"><button class="btn ghost" id="forgetBtn" type="button">Forget keys</button>
       <div style="display:flex;align-items:center;gap:14px"><span class="saved" id="savedMsg">saved ✓</span>
         <button class="btn primary" id="saveBtn" type="button">Save settings</button></div></div>
   </div>
@@ -609,8 +620,9 @@ async function runFoxit(action, btn){
   box.hidden=false; box.className='fx-result loading';
   box.innerHTML = `<span><span class="spin"></span>Running <b>${escapeHtml(label)}</b> through Foxit… <span class="muted">(a real conversion can take a few seconds)</span></span>`;
   try{
+    const fc = foxitCreds();
     const r = await fetch('/api/foxit',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action, pdf:CUR.pdf})});
+      body:JSON.stringify({action, pdf:CUR.pdf, foxit_client_id:fc.id, foxit_client_secret:fc.secret})});
     const txt = await r.text();
     let d; try{ d = JSON.parse(txt); }
     catch(_){ d = {ok:false, error:`Server returned ${r.status} (not JSON) — check the terminal running the app for details.`}; }
@@ -864,16 +876,20 @@ function mrow(k,v){ if(v===undefined||v===null||v==='') return '';
   return `<div class="mrow"><span class="k">${k}</span><span class="v">${escapeHtml(String(v))}</span></div>`; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// ---- advisory settings (persisted) + modal ----
+// ---- settings (persisted) + modal ----
 const provider=$('#provider'), model=$('#model'), apiKey=$('#apiKey'), baseUrl=$('#baseUrl'),
       keyWrap=$('#keyWrap'), modelRow=$('#modelRow'), baseWrap=$('#baseWrap');
+const foxitId=$('#foxitId'), foxitSecret=$('#foxitSecret');
 const REAL=new Set(['anthropic','openai','gemini','compatible']); const LS_KEY='verso-settings';
 function syncProvider(){ const real=REAL.has(provider.value);
   keyWrap.classList.toggle('hidden',!real); modelRow.classList.toggle('hidden',!real); baseWrap.classList.toggle('hidden',provider.value!=='compatible'); }
 function loadSettings(){ let s={}; try{ s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; }catch(e){}
-  provider.value=s.provider||'off'; model.value=s.model||''; baseUrl.value=s.base_url||''; apiKey.value=s.api_key||''; syncProvider(); }
-function saveSettings(){ const s={provider:provider.value,model:model.value.trim(),base_url:baseUrl.value.trim(),api_key:apiKey.value};
+  provider.value=s.provider||'off'; model.value=s.model||''; baseUrl.value=s.base_url||''; apiKey.value=s.api_key||'';
+  foxitId.value=s.foxit_id||''; foxitSecret.value=s.foxit_secret||''; syncProvider(); }
+function saveSettings(){ const s={provider:provider.value,model:model.value.trim(),base_url:baseUrl.value.trim(),api_key:apiKey.value,
+    foxit_id:foxitId.value.trim(),foxit_secret:foxitSecret.value};
   try{ localStorage.setItem(LS_KEY,JSON.stringify(s)); }catch(e){} }
+function foxitCreds(){ try{ const s=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; return {id:(s.foxit_id||'').trim(), secret:s.foxit_secret||''}; }catch(e){ return {id:'',secret:''}; } }
 provider.addEventListener('change', syncProvider);
 function advParams(fd){ if(provider.value==='off') return; fd.append('advisory','true');
   if(REAL.has(provider.value)){ fd.append('provider', provider.value==='compatible'?'openai':provider.value); fd.append('api_key', apiKey.value);
@@ -887,7 +903,7 @@ $('#settingsClose').addEventListener('click', closeSettings);
 ov.addEventListener('click', e=>{ if(e.target===ov) closeSettings(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'&&!ov.hidden) closeSettings(); });
 $('#saveBtn').addEventListener('click', ()=>{ saveSettings(); const m=$('#savedMsg'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1400); setTimeout(closeSettings,380); });
-$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value=''; saveSettings(); });
+$('#forgetBtn').addEventListener('click', ()=>{ apiKey.value=''; foxitId.value=''; foxitSecret.value=''; saveSettings(); });
 loadSettings();
 </script>
 </body>
