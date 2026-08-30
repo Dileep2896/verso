@@ -108,6 +108,13 @@ main{padding-block:clamp(24px,4vw,44px);display:grid;gap:var(--s5)}
 @media(max-width:560px){.verdict .tag{margin-left:0}}
 /* foxit actions (post-release) */
 .fx-intro{font-size:15px;color:var(--ink);max-width:70ch;margin-bottom:16px;line-height:1.5}
+.fx-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.fx-badge .ic{width:13px;height:13px}
+.fx-badge.ok{background:var(--ok-wash);color:var(--ok)}
+.fx-badge.locked{background:var(--danger-wash);color:var(--danger)}
+.fx-actions .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
+.fx-locknote{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13.5px;color:var(--muted)}
+.fx-locknote .ic{width:16px;height:16px;color:var(--ok);flex:0 0 16px}
 .fx-actions{display:flex;flex-wrap:wrap;gap:10px}
 .fx-result{margin-top:18px;padding:14px 16px;border-radius:var(--r2);border:1px solid var(--line-2);background:var(--panel-2);font-size:14px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .fx-result.loading{color:var(--muted)}
@@ -556,11 +563,24 @@ results.addEventListener('click', e=>{
 });
 
 // ---- Foxit actions on a released document ------------------------------- //
-function foxitPanel(){
-  return `<div class="card" id="foxitCard"><div class="card-h">
-      <span class="t">Do something with it</span><span class="hint">released · safe to hand off</span></div>
+function foxitPanel(state){
+  if(state==='blocked'){
+    return `<div class="card sec fxcard" id="sec-actions"><div class="card-h">
+        <span class="t">Foxit PDF tools</span><span class="fx-badge locked">${icon('shieldAlert')} blocked by the gate</span></div>
+      <div class="card-b">
+        <div class="fx-intro">Verso runs as a gate in front of <b>Foxit's PDF Services API</b>. This document was <b>quarantined</b>, so it never reaches Foxit — the tools below are locked. On a clean document they become live operations.</div>
+        <div class="fx-actions">
+          <button class="btn ghost" type="button" disabled>${icon('file')}Convert to Word</button>
+          <button class="btn ghost" type="button" disabled>${icon('archive')}Compress PDF</button>
+          <button class="btn ghost" type="button" disabled>${icon('info')}Document info</button>
+        </div>
+        <div class="fx-locknote">${icon('shieldCheck')} This is the firewall working — a hostile file can never reach a Foxit tool.</div>
+      </div></div>`;
+  }
+  return `<div class="card sec fxcard" id="sec-actions"><div class="card-h">
+      <span class="t">Foxit PDF tools</span><span class="fx-badge ok">${icon('shieldCheck')} released · passed the gate</span></div>
     <div class="card-b">
-      <div class="fx-intro">Verso released this document, so it’s safe to pass on. Run a real <b>Foxit</b> PDF operation on it — the same gate runs again on the server, so a hidden-payload file could never reach these.</div>
+      <div class="fx-intro">Verso released this document, so it’s safe to pass to <b>Foxit's PDF Services API</b>. Run a real Foxit operation — the gate re-runs on the server first, so a hidden-payload file could never reach these.</div>
       <div class="fx-actions">
         <button class="btn ghost" type="button" data-fx="to_word">${icon('file')}Convert to Word</button>
         <button class="btn ghost" type="button" data-fx="compress">${icon('archive')}Compress PDF</button>
@@ -704,8 +724,8 @@ function render(d, fname){
 
   if(dec==='error'){ results.innerHTML = html+`</div>`; renderRail(d, fname); return; }
 
-  // Released -> offer real Foxit operations (the gate re-runs server-side).
-  if(dec==='clean' && d.pdf){ CUR.pdf = d.pdf; CUR.name = fname; html += `<div id="sec-actions" class="sec">${foxitPanel()}</div>`; }
+  // Released -> live Foxit operations (the gate re-runs server-side).
+  if(dec==='clean' && d.pdf){ CUR.pdf = d.pdf; CUR.name = fname; html += foxitPanel('clean'); }
 
   // Document + findings. When there's evidence to line up against the page
   // (quarantined) show them side by side; otherwise the document on its own.
@@ -730,6 +750,7 @@ function render(d, fname){
       </div>
     </div>
     <div class="splithint">Click a finding to <b>flash it on the page</b> · click a highlight to open its finding.</div>`;
+    html += foxitPanel('blocked');
   } else {
     if(d.pdf){
       html += `<div class="card sec" id="sec-doc"><div class="card-h"><span class="t">Your document</span>${tools}</div>
@@ -793,8 +814,8 @@ function renderRail(d, fname){
   railStatus.innerHTML = `<span class="vchip">${chip}</span><div class="fn">${escapeHtml(fname||'document.pdf')}</div>${counts}`;
   $('#railStatusWrap').hidden = (dec!=='quarantined' && dec!=='clean');
 
-  const cand = [['sec-verdict','layout','Overview'],['sec-actions','wand','Foxit actions'],
-                ['sec-findings','scan','Findings'],['sec-doc','file','Document'],['sec-details','list','Details']];
+  const cand = [['sec-verdict','layout','Overview'],['sec-findings','scan','Findings'],
+                ['sec-actions','wand','Foxit tools'],['sec-doc','file','Document'],['sec-details','list','Details']];
   railNav.innerHTML = cand.filter(([id])=>document.getElementById(id))
     .map(([id,ic,lbl])=>`<a class="railitem" href="#${id}" data-nav="${id}">${icon(ic)}${lbl}</a>`).join('');
   $('#railNavWrap').hidden = !railNav.innerHTML;
