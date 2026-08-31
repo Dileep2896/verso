@@ -1,0 +1,13 @@
+# Render Blueprint. Point Render at this repo and it builds the Dockerfile and
+# runs the web service. Render injects $PORT; the container binds to it.
+services:
+  - type: web
+    name: verso
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"

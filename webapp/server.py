@@ -31,6 +31,15 @@ HERE = Path(__file__).resolve().parent
 MAX_BYTES = 25 * 1024 * 1024
 
 app = Flask(__name__, static_folder=None)
+# Reject oversized uploads before Flask buffers the whole body into memory. The
+# per-endpoint reads below also cap at MAX_BYTES; this is the early gate that
+# matters once the app is exposed publicly rather than on localhost.
+app.config["MAX_CONTENT_LENGTH"] = MAX_BYTES
+
+
+@app.errorhandler(413)
+def _too_large(_e):
+    return jsonify({"ok": False, "error": f"File too large (limit {MAX_BYTES // (1024 * 1024)} MB)."}), 413
 
 
 # --------------------------------------------------------------------------- #
