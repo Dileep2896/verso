@@ -4,9 +4,9 @@ Read the **bold lines** out loud. The `[bracketed]` lines are what to do on scre
 don't read them. Aim for ~3 minutes; slower is better than faster.
 
 **Before you hit record:** Focus/Do-Not-Disturb on · one clean full-screen browser
-tab on http://127.0.0.1:8000 · three files on the Desktop (`demo-hidden-issues.pdf`,
-`somatosensory-article.pdf`, `irs-w9-form.pdf`) · Foxit key in Settings · do one
-silent dry run first.
+tab on http://127.0.0.1:8000 · four files on the Desktop (`demo-hidden-issues.pdf`,
+`demo-all-attacks.pdf`, `somatosensory-article.pdf`, `irs-w9-form.pdf`) · Foxit key
+in Settings · do one silent dry run first.
 
 ---
 
@@ -36,14 +36,25 @@ silent dry run first.
 
 `[Optional: expand one more group, e.g. the redaction with words still under it.]`
 
-### 1:00 — The receipt
+### 0:52 — The full test (shows the range)
+
+`[Optional but impressive. "+ Scan another", drag in `demo-all-attacks.pdf` — a real 10-page agreement.]`
+
+> **"That was a short one. Here's a full ten-page contract — same normal look. Verso
+> finds seventeen hidden items across the whole document: eleven written to deceive a
+> reader, plus embedded JavaScript, a fake redaction, an off-page line, micro-type —
+> every attack category, in one deterministic pass."**
+
+`[Point at the sidebar breakdown: 11 hidden · 2 worth a look · 4 informational, on pages 1–10.]`
+
+### 1:15 — The receipt
 
 `[Click "Details" in the rail. Scroll to the signed receipt.]`
 
 > **"And every refusal is a signed, chained receipt — Ed25519. Not a log line;
 > tamper-evident proof that Verso declined, and why."**
 
-### 1:15 — Fix & export (Verso doesn't just detect — it fixes)
+### 1:35 — Fix & export (Verso doesn't just detect — it fixes)
 
 `[Click "Fix & export" in the rail. Point at the row of buttons.]`
 
@@ -61,7 +72,7 @@ silent dry run first.
 > download the cleaned copy, run it back through… released. It caught it, and
 > fixed it."**
 
-### 1:40 — The gate on the sponsors
+### 2:00 — The gate on the sponsors
 
 `[Scroll down to the "Foxit PDF tools" and "Nutrient DWS" panels — both locked.]`
 
@@ -69,7 +80,7 @@ silent dry run first.
 > Nutrient's extraction — sent to human review instead. The hostile file never
 > reaches either service. That is the firewall."**
 
-### 2:05 — Release a clean document
+### 2:25 — Release a clean document
 
 `[Click "+ Scan another" in the rail. Drag `somatosensory-article.pdf` onto the drop zone.]`
 
@@ -81,7 +92,7 @@ then "Extract with Nutrient DWS".]`
 > **"Foxit's tools go live — here's Document info calling Foxit's real API. And
 > Nutrient DWS extracts structured fields, with confidence scores."**
 
-### 2:50 — The honest close
+### 3:10 — The honest close
 
 `[Scroll back up to the verdict, or leave the extraction on screen.]`
 
@@ -97,12 +108,13 @@ then "Extract with Nutrient DWS".]`
 
 ## Cheat sheet (if you'd rather freestyle)
 
-1. Hostile doc → **quarantined, 4 hidden** → split view → **Show on page**.
-2. **Details** → signed receipt.
-3. **Fix & export** → the CLI in the browser; **Sanitize** the W-9 (embedded JS) → **Download cleaned.pdf** → re-scan → **released**.
-4. Both sponsors **locked** (Foxit blocked / Nutrient review).
-5. **Scan another** → clean doc → **released** → Foxit + Nutrient **live**.
-6. Close: deterministic · recall 1.0 · 0 false positives · name A8 (what it can't do).
+1. Hostile doc (`demo-hidden-issues.pdf`) → **quarantined, 4 hidden** → split view → **Show on page**.
+2. *(optional)* **Full test** (`demo-all-attacks.pdf`) → 10 pages, **17 findings · 11·2·4**, every category.
+3. **Details** → signed receipt.
+4. **Fix & export** → the CLI in the browser; **Sanitize** the W-9 (embedded JS) → **Download cleaned.pdf** → re-scan → **released**.
+5. Both sponsors **locked** (Foxit blocked / Nutrient review).
+6. **Scan another** → clean doc → **released** → Foxit + Nutrient **live**.
+7. Close: deterministic · recall 1.0 · 0 false positives · name A8 (what it can't do).
 
 ## Two lines to have ready for questions
 
