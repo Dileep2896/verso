@@ -1,0 +1,9 @@
+flowchart LR
+  PDF([PDF]) --> S["Stream view<br/>parser + coordinates"]
+  PDF --> R["Render view<br/>OCR of the page"]
+  PDF --> M["Meta view<br/>JavaScript, files, metadata"]
+  S --> D{"Diff the three views"}
+  R --> D
+  M --> D
+  D -->|disagreement| Q["QUARANTINE<br/>exit 2 + signed receipt"]
+  D -->|agreement| C["RELEASE<br/>exit 0"]

@@ -1,0 +1,6 @@
+flowchart LR
+  A["AI agent"] --> V["Verso gate"]
+  V --> G{"Hidden content?"}
+  G -->|"yes (exit 2)"| X["Refuse + signed receipt<br/>Foxit / Nutrient never run"]
+  G -->|"no (exit 0)"| F["Foxit PDF tools"]
+  G -->|"no (exit 0)"| N["Nutrient DWS extraction"]

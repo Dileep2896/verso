@@ -1,0 +1,7 @@
+{ "theme": "base",
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#E3F5F9", "primaryBorderColor": "#0A93AC", "primaryTextColor": "#0A1420",
+    "lineColor": "#0A93AC", "secondaryColor": "#FBECEC", "tertiaryColor": "#E4F4EC",
+    "fontFamily": "IBM Plex Sans, Segoe UI, Arial, sans-serif", "fontSize": "16px"
+  } }
