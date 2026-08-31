@@ -31,7 +31,12 @@ RUN python -m corpus.build
 
 # Render (and most hosts) inject $PORT; default to 8000 for a local `docker run`.
 # One worker keeps memory modest on a free tier; threads cover the light
-# concurrency, and the long timeout covers OCR on large PDFs.
+# concurrency, and the long timeout is a safety net for a stalled request.
 ENV VERSO_WEB_HOST=0.0.0.0
+# OCR (the render view) only corroborates and is the heaviest step; on a small
+# host it exhausts memory and the scan never returns. Verdicts are byte-identical
+# with it off, so default it off for the container. On a larger instance set
+# VERSO_WEB_OCR=1 to turn corroboration back on.
+ENV VERSO_WEB_OCR=0
 EXPOSE 8000
 CMD ["sh", "-c", "gunicorn webapp.server:app --bind 0.0.0.0:${PORT:-8000} --workers 1 --threads 4 --timeout 120"]

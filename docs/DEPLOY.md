@@ -29,6 +29,11 @@ else to configure.
 - **Free tier sleeps.** After ~15 min idle the service spins down; the next
   request cold-starts in ~30-60s. Fine for a demo; hit the URL once to warm it
   before you present.
+- **OCR is off on the deploy.** The render (OCR) view only corroborates and is
+  the heaviest step; on a 512 MB free instance it exhausts memory and the scan
+  never returns. The image sets `VERSO_WEB_OCR=0`, which gives byte-identical
+  verdicts without the tesseract load. On a larger instance (more RAM/CPU) set
+  `VERSO_WEB_OCR=1` to turn corroboration back on.
 - **Sponsor tools.** With no keys set, the Foxit and Nutrient panels show as
   gated/locked and fall back to the local fake, so the app fully works offline.
   To make them live on the deploy, open **Settings** in the app and paste your

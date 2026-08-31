@@ -30,6 +30,12 @@ BUILD = ROOT / "corpus" / "build"
 HERE = Path(__file__).resolve().parent
 MAX_BYTES = 25 * 1024 * 1024
 
+# The OCR "render" view only corroborates; the quarantine decision is computed
+# without it (verdicts are byte-identical with OCR off). It is also by far the
+# heaviest step in memory and CPU, so a small/free host can set VERSO_WEB_OCR=0
+# to keep the same verdicts without the tesseract load. Default on for local use.
+WEB_OCR = os.environ.get("VERSO_WEB_OCR", "1").strip().lower() not in ("0", "false", "no", "off")
+
 app = Flask(__name__, static_folder=None)
 # Reject oversized uploads before Flask buffers the whole body into memory. The
 # per-endpoint reads below also cap at MAX_BYTES; this is the early gate that
@@ -85,7 +91,7 @@ def _result_json(result, advisory: bool) -> dict:
 
 
 def _scan_path(path: Path, advisory: bool, llm_config: dict | None = None) -> dict:
-    result = scan(path, with_render=True, with_advisory=advisory,
+    result = scan(path, with_render=WEB_OCR, with_advisory=advisory,
                   advisory_config=llm_config)
     return _result_json(result, advisory)
 

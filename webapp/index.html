@@ -522,9 +522,23 @@ async function scanFile(file){
   drop.classList.add('hidden');
   loading(file.name);
   const fd = new FormData(); fd.append('file', file); advParams(fd);
-  try{ const r = await fetch('/api/scan',{method:'POST',body:fd}); render(await r.json(), file.name); }
-  catch(err){ results.innerHTML = verdictCard('e','Something went wrong', escapeHtml(String(err)), '');
-    $('#newScanBtn').classList.remove('hidden'); }
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 120000);   // don't spin forever if a host stalls
+  try{
+    const r = await fetch('/api/scan',{method:'POST',body:fd,signal:ctrl.signal});
+    const txt = await r.text();
+    let d; try{ d = JSON.parse(txt); }
+    catch(_){ throw new Error(`Server returned ${r.status} (not JSON).`); }
+    render(d, file.name);
+  }
+  catch(err){
+    const msg = err.name==='AbortError'
+      ? 'The scan timed out. On a small/free host this can happen on large PDFs — try a smaller file, or a larger instance.'
+      : String(err);
+    results.innerHTML = verdictCard('e','Something went wrong', escapeHtml(msg), '');
+    $('#newScanBtn').classList.remove('hidden');
+  }
+  finally{ clearTimeout(t); }
 }
 
 // ---- Verso's own PDF viewer (pdf.js) with finding highlights ----
